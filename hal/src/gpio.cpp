@@ -10,6 +10,16 @@
 #define GPIO_EXPORT GPIO_PATH "/export"
 #define GPIO_VALUE "/value"
 #define GPIO_ACTIVE_LOW "/active_low"
+#define GPIO_DIRECTION "/direction"
+
+
+GPIO::GPIO(){
+
+}
+
+GPIO::~GPIO(){
+	
+}
 
 void GPIO::exportPin(int pin) {
 	std::ostringstream pathStream;
@@ -36,7 +46,7 @@ void GPIO::configPin(headerType header, int pin, std::string setting) {
 	runCommand(commandStream.str(), false);
 }
 
-int getPinValue(int pin) {
+int GPIO::getPinValue(int pin) {
 	std::ostringstream pathStream;
 	pathStream << GPIO_PATH << pin << GPIO_VALUE;
 	std::string path = pathStream.str();
@@ -69,4 +79,43 @@ void GPIO::setPinActiveLow(int pin, int activeLow) {
 
 bool GPIO::isPinActive(int pin) {
 	return getPinValue(pin) == 1;
+}
+
+void GPIO::setPinDirection(int pin, const std::string& value) {
+	std::ostringstream pathStream;
+	pathStream << GPIO_PATH << pin << GPIO_DIRECTION;
+	std::string path = pathStream.str();
+
+	std::ofstream valueFile(path);
+	if (valueFile.is_open()) {
+		valueFile << value;
+		valueFile.close();
+	} else {
+		std::cerr << "Error opening GPIO direction file for pin " << pin << std::endl;
+	}
+
+	// wait for pin to be exported
+	sleepForMs(300);
+}
+
+void GPIO::setPinValue(int pin, int value) {
+	std::ostringstream pathStream;
+	pathStream << GPIO_PATH << pin << GPIO_VALUE;
+	std::string path = pathStream.str();
+
+	//Value we want to write already value of file
+	if (getPinValue(pin) == value) {
+		return;
+	}
+
+	std::ofstream valueFile(path);
+	if (valueFile.is_open()) {
+		valueFile << value;
+		valueFile.close();
+	} else {
+		std::cerr << "Error opening GPIO value file for pin " << pin << std::endl;
+	}
+
+	// wait for pin to be exported
+	sleepForMs(300);
 }

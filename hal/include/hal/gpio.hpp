@@ -18,6 +18,8 @@ class GPIO {
 	int getPinValue(int pin);
 	void setPinActiveLow(int pin, int activeLow);
 	bool isPinActive(int pin);
+	void setPinDirection(int pin, const std::string& value);
+	void setPinValue(int pin, int value);
 };
 
 #endif
