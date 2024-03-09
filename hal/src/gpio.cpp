@@ -11,6 +11,9 @@
 #define GPIO_VALUE "/value"
 #define GPIO_ACTIVE_LOW "/active_low"
 
+GPIO::GPIO() {}
+GPIO::~GPIO() {}
+
 void GPIO::exportPin(int pin) {
 	std::ostringstream pathStream;
 	pathStream << GPIO_PATH << pin << GPIO_VALUE;
@@ -36,7 +39,7 @@ void GPIO::configPin(headerType header, int pin, std::string setting) {
 	runCommand(commandStream.str(), false);
 }
 
-int getPinValue(int pin) {
+int GPIO::getPinValue(int pin) {
 	std::ostringstream pathStream;
 	pathStream << GPIO_PATH << pin << GPIO_VALUE;
 	std::string path = pathStream.str();
