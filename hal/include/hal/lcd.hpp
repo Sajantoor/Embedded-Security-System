@@ -1,5 +1,5 @@
 #pragma once
-
+#include "hal/gpio.hpp"
 //TODO: set D0-3 pin values
 enum LcdGpioPins {
                 D0, D1, D2, D3, D4 = 66, D5 = 69, D6 = 115, 
@@ -12,7 +12,8 @@ class LCD {
         // LcdDisplayMode dispMode;
         GPIO gpio;
         void write8bits(uint8_t value);
-
+        void write4bits(uint8_t value);
+        void enablePulse();
     public:
         LCD(LcdDisplayMode displayMode);
         ~LCD();

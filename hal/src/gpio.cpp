@@ -40,15 +40,15 @@ void GPIO::configPin(headerType header, int pin, std::string setting) {
 	runCommand(commandStream.str(), false);
 }
 
-void GPIO::setPinValue(int pin, std::string val) {
+void GPIO::setPinValue(int pin, std::string val) {	
 	std::ostringstream pathStream;
 	pathStream << GPIO_PATH << pin << GPIO_VALUE;
 	std::string path = pathStream.str();
 
-	std::ofstream directionFile(path);
-	if (directionFile.is_open()) {
-		directionFile << val;
-		directionFile.close();
+	std::ofstream valueFile(path);
+	if (valueFile.is_open()) {
+		valueFile << val;
+		valueFile.close();
 	} else {
 		std::cerr << "Error opening GPIO value file for pin " << pin << std::endl;
 	}
@@ -89,7 +89,6 @@ void GPIO::setPinDirection(int pin, std::string direction) {
 	std::ostringstream pathStream;
 	pathStream << GPIO_PATH << pin << GPIO_DIRECTION;
 	std::string path = pathStream.str();
-
 	std::ofstream directionFile(path);
 	if (directionFile.is_open()) {
 		directionFile << direction;

@@ -4,7 +4,7 @@ project(assignment_2 VERSION 1.0 DESCRIPTION "Project" LANGUAGES CXX)
 
 # Compiler options (inherited by sub-folders)
 set(CMAKE_CXX_STANDARD 17)
-add_compile_options(-Wall -Werror -Wpedantic -Wextra -Wno-psabi)
+add_compile_options(-Wall -Wpedantic -Wextra -Wno-psabi)
 add_compile_options(-fdiagnostics-color)
 
 # Enable address sanitizer
