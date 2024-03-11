@@ -9,6 +9,8 @@
 #include "hal/lcd.hpp"
 #include "common/utils.hpp"
 
+#define LCD_LENGTH 16
+#define LCD_WIDTH 2
 
 LCD::LCD(LcdDisplayMode displayMode) {
     std::cout << "Starting lcd init" << std::endl;
@@ -44,9 +46,9 @@ LCD::LCD(LcdDisplayMode displayMode) {
     write4bits(0x3); // Function set 3
     sleepForNs(128000);
 
-    write4bits(0x2); // Function set: 2 line display, 5x8 dot char font
+    write4bits(0x2); // Function set to change to 4 bit mode
     sleepForMs(1);
-    write4bits(0x2); 
+    write4bits(0x2); // Function set: 2 line display, 5x8 dot char font
     write4bits(0x8);
     sleepForNs(128000);
 
@@ -124,6 +126,7 @@ void LCD::write8bits(uint8_t value) {
     strBit[0] = ((value >> 7) & 0x01 ? 1 : 0) + '0';
     gpio.setPinValue(LcdGpioPins::D7, strBit);
 }
+
 void LCD::write4bits(uint8_t value) {
     char strBit[2];
     strBit[1] = '\0'; 
@@ -144,11 +147,10 @@ void LCD::write4bits(uint8_t value) {
 }
 
 void LCD::enablePulse() {
-    struct timespec pulseDelay = {0, 1000000};
     gpio.setPinValue(LcdGpioPins::E, "1");
-    nanosleep(&pulseDelay, (struct timespec*) NULL);
+    sleepForMs(1);
     gpio.setPinValue(LcdGpioPins::E, "0");
-    nanosleep(&pulseDelay, (struct timespec*) NULL);
+    sleepForMs(1);
 }
 
 void LCD::displayMessage(std::string msg) {
