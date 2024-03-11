@@ -10,6 +10,7 @@
 #define GPIO_EXPORT GPIO_PATH "/export"
 #define GPIO_VALUE "/value"
 #define GPIO_ACTIVE_LOW "/active_low"
+#define GPIO_DIRECTION "/direction"
 
 GPIO::GPIO() {}
 GPIO::~GPIO() {}
@@ -37,6 +38,20 @@ void GPIO::configPin(headerType header, int pin, std::string setting) {
 	std::stringstream commandStream;
 	commandStream << "config-pin p" << header << "." << pin << " " << setting;
 	runCommand(commandStream.str(), false);
+}
+
+void GPIO::setPinValue(int pin, std::string val) {
+	std::ostringstream pathStream;
+	pathStream << GPIO_PATH << pin << GPIO_VALUE;
+	std::string path = pathStream.str();
+
+	std::ofstream directionFile(path);
+	if (directionFile.is_open()) {
+		directionFile << val;
+		directionFile.close();
+	} else {
+		std::cerr << "Error opening GPIO value file for pin " << pin << std::endl;
+	}
 }
 
 int GPIO::getPinValue(int pin) {
@@ -67,6 +82,20 @@ void GPIO::setPinActiveLow(int pin, int activeLow) {
 		activeLowFile.close();
 	} else {
 		std::cerr << "Error opening GPIO active_low file for pin " << pin << std::endl;
+	}
+}
+
+void GPIO::setPinDirection(int pin, std::string direction) {
+	std::ostringstream pathStream;
+	pathStream << GPIO_PATH << pin << GPIO_DIRECTION;
+	std::string path = pathStream.str();
+
+	std::ofstream directionFile(path);
+	if (directionFile.is_open()) {
+		directionFile << direction;
+		directionFile.close();
+	} else {
+		std::cerr << "Error opening GPIO direction file for pin " << pin << std::endl;
 	}
 }
 
