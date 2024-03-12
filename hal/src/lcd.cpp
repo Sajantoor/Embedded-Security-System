@@ -98,34 +98,35 @@ LCD::LCD(LcdDisplayMode displayMode) {
 LCD::~LCD() {
 }
 
-void LCD::write8bits(uint8_t value) {
-    char strBit[2];
-    strBit[1] = '\0'; 
+// Not used
+// void LCD::write8bits(uint8_t value) {
+//     char strBit[2];
+//     strBit[1] = '\0'; 
 
-    strBit[0] = (value & 0x01 ? 1 : 0) + '0';
-	gpio.setPinValue(LcdGpioPins::D0, strBit);
+//     strBit[0] = (value & 0x01 ? 1 : 0) + '0';
+// 	gpio.setPinValue(LcdGpioPins::D0, strBit);
     
-    strBit[0] = ((value >> 1) & 0x01 ? 1 : 0) + '0';
-	gpio.setPinValue(LcdGpioPins::D1, strBit);
+//     strBit[0] = ((value >> 1) & 0x01 ? 1 : 0) + '0';
+// 	gpio.setPinValue(LcdGpioPins::D1, strBit);
     
-    strBit[0] = ((value >> 2) & 0x01 ? 1 : 0) + '0';
-	gpio.setPinValue(LcdGpioPins::D2, strBit);
+//     strBit[0] = ((value >> 2) & 0x01 ? 1 : 0) + '0';
+// 	gpio.setPinValue(LcdGpioPins::D2, strBit);
     
-    strBit[0] = ((value >> 3) & 0x01 ? 1 : 0) + '0';
-	gpio.setPinValue(LcdGpioPins::D3, strBit);
+//     strBit[0] = ((value >> 3) & 0x01 ? 1 : 0) + '0';
+// 	gpio.setPinValue(LcdGpioPins::D3, strBit);
 
-    strBit[0] = ((value >> 4) & 0x01 ? 1 : 0) + '0';
-	gpio.setPinValue(LcdGpioPins::D4, strBit);
+//     strBit[0] = ((value >> 4) & 0x01 ? 1 : 0) + '0';
+// 	gpio.setPinValue(LcdGpioPins::D4, strBit);
 
-    strBit[0] = ((value >> 5) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D5, strBit);
+//     strBit[0] = ((value >> 5) & 0x01 ? 1 : 0) + '0';
+//     gpio.setPinValue(LcdGpioPins::D5, strBit);
 
-    strBit[0] = ((value >> 6) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D6, strBit);
+//     strBit[0] = ((value >> 6) & 0x01 ? 1 : 0) + '0';
+//     gpio.setPinValue(LcdGpioPins::D6, strBit);
 
-    strBit[0] = ((value >> 7) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D7, strBit);
-}
+//     strBit[0] = ((value >> 7) & 0x01 ? 1 : 0) + '0';
+//     gpio.setPinValue(LcdGpioPins::D7, strBit);
+// }
 
 void LCD::write4bits(uint8_t value) {
     char strBit[2];
@@ -160,28 +161,68 @@ void LCD::clearDisplay() {
     sleepForNs(64000);
 }
 
-void LCD::displayMessage(std::string msg) {
-    clearDisplay();
+void LCD::returnHome() {
+    write4bits(0x0);
+    write4bits(0x2);
+    sleepForMs(2);
+}
 
+void LCD::entryModeSet(uint8_t id, uint8_t s) {
+    uint8_t val = 0x4 + id + s;
+    write4bits(val >> 4);
+    write4bits(val & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::displayControl(uint8_t d, uint8_t c, uint8_t b) {
+    uint8_t val = 0x8 + d + c + b;
+    write4bits(val >> 4);
+    write4bits(val & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::cursorOrDisplayShift(uint8_t sc, uint8_t rl) {
+    uint8_t val = (sc + rl) << 2;
+    write4bits(0x1);
+    write4bits(val & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::functionSet(uint8_t dl, uint8_t n, uint8_t f) {
+    uint8_t upperVal = 0x2 + dl;
+    uint8_t lowerVal = (n + f) << 2;
+    write4bits(upperVal);
+    write4bits(lowerVal & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::setCgramAddress(uint8_t addr) {
+    uint8_t upperVal = 0x4 + (addr >> 4);
+    uint8_t lowerVal = addr;
+    write4bits(upperVal);
+    write4bits(lowerVal & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::setDdramAddress(uint8_t addr) {
+    gpio.setPinValue(LcdGpioPins::RS, "0");
+    std::cout << (0x8+(addr >> 4)) << std::endl;
+    std::cout << (addr & 0xF) << std::endl;
+    write4bits(0x8+(addr >> 4));
+    write4bits(addr & 0xF);
+    sleepForNs(64000);
+}
+
+void LCD::writeDataToLCD(std::string msg) {
     gpio.setPinValue(LcdGpioPins::RS, "1");
     for(unsigned int i = 0; i < msg.length(); i++) {
         write4bits(msg[i] >> 4);
         write4bits(msg[i] & 0xF);
 
         if(i == LCD_LENGTH-1) {
-            setDramAddress(0x40);
+            setDdramAddress(0x40);
             gpio.setPinValue(LcdGpioPins::RS, "1");
         }
+        sleepForNs(64000);
     }
 }
-
-void LCD::setDramAddress(uint8_t addy) {
-    gpio.setPinValue(LcdGpioPins::RS, "0");
-    std::cout << (0x8+(addy >> 4)) << std::endl;
-    std::cout << (addy & 0xF) << std::endl;
-    write4bits(0x8+(addy >> 4));
-    write4bits(addy & 0xF);
-    sleepForNs(64000);
-}
-
-

@@ -14,6 +14,9 @@ int main(void) {
     // then 16 shown ("working")
     // final 19 chars not displayed
     // l.displayMessage("Hello World!!! My Name is Jimmy.");
-    l.displayMessage("abcdefghijklmnopqrstuvwxyz0123456789");
+    
+    l.clearDisplay();
+    l.writeDataToLCD("abcdefghi ");
+    l.writeDataToLCD("jklmnopqrstuvwxyz0123456789");
     return 0;
 }
