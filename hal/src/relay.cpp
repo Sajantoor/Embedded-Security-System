@@ -2,27 +2,22 @@
 #include "hal/gpio.hpp"
 
 #define RELAY_PIN 13
-static GPIO gpioRelay;
 
 Relay::Relay() {
     // Configure pins to GPIO
-    gpioRelay.configPin(P9, 19, "gpio");
-    gpioRelay.configPin(P9, 20, "gpio");
+    GPIO::configPin(P9, 19, "gpio");
+    GPIO::configPin(P9, 20, "gpio");
 
     //Export pins to use
-    gpioRelay.exportPin(RELAY_PIN);
-    gpioRelay.exportPin(12);
-    gpioRelay.setPinDirection(RELAY_PIN, "out");
+    GPIO::exportPin(RELAY_PIN);
+    GPIO::exportPin(12);
+    GPIO::setPinDirection(RELAY_PIN, "out");
 }
 
-Relay::~Relay() {
-
+void Relay::open() {
+    GPIO::setPinValue(RELAY_PIN, 0);
 }
 
-void Relay::openRelay() {
-    gpioRelay.setPinValue(RELAY_PIN, 0);
-}
-
-void Relay::closeRelay() {
-    gpioRelay.setPinValue(RELAY_PIN, 1);
+void Relay::close() {
+    GPIO::setPinValue(RELAY_PIN, 1);
 }

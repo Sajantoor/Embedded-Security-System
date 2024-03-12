@@ -17,11 +17,11 @@ void testRelay() {
     Relay relay;
     sleepForMs(1000);
 
-    //Closing lock
-    relay.openRelay();
+    // Closing lock
+    relay.open();
     sleepForMs(1000);
-    
-    //Opening lock
-    relay.closeRelay();
+
+    // Opening lock
+    relay.close();
     sleepForMs(500);
 }
