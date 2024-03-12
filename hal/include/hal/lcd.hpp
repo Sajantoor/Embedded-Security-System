@@ -14,6 +14,8 @@ class LCD {
         void write8bits(uint8_t value);
         void write4bits(uint8_t value);
         void enablePulse();
+        void clearDisplay();
+        void setDramAddress(uint8_t addy);
     public:
         LCD(LcdDisplayMode displayMode);
         ~LCD();

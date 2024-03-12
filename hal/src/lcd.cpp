@@ -93,7 +93,7 @@ LCD::LCD(LcdDisplayMode displayMode) {
     // write8bits(0x0F); // Display on, cursor on, blinking on
     // sleepForNs(64000);
 
-    gpio.setPinValue(LcdGpioPins::RS, "1"); // RS = 1 lets you write data to lcd
+    // gpio.setPinValue(LcdGpioPins::RS, "1"); // RS = 1 lets you write data to lcd
 }
 LCD::~LCD() {
 }
@@ -153,11 +153,35 @@ void LCD::enablePulse() {
     sleepForMs(1);
 }
 
+void LCD::clearDisplay() {
+    gpio.setPinValue(LcdGpioPins::RS, "0");
+    write4bits(0x0);
+    write4bits(0x1);
+    sleepForNs(64000);
+}
+
 void LCD::displayMessage(std::string msg) {
+    clearDisplay();
+
+    gpio.setPinValue(LcdGpioPins::RS, "1");
     for(unsigned int i = 0; i < msg.length(); i++) {
         write4bits(msg[i] >> 4);
         write4bits(msg[i] & 0xF);
+
+        if(i == LCD_LENGTH-1) {
+            setDramAddress(0x40);
+            gpio.setPinValue(LcdGpioPins::RS, "1");
+        }
     }
+}
+
+void LCD::setDramAddress(uint8_t addy) {
+    gpio.setPinValue(LcdGpioPins::RS, "0");
+    std::cout << (0x8+(addy >> 4)) << std::endl;
+    std::cout << (addy & 0xF) << std::endl;
+    write4bits(0x8+(addy >> 4));
+    write4bits(addy & 0xF);
+    sleepForNs(64000);
 }
 
 
