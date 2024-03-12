@@ -2,6 +2,7 @@
 #include "hal/gpio.hpp"
 
 #define RELAY_PIN 13
+#define SECONDARY_RELAY_PIN 12
 
 Relay::Relay() {
     // Configure pins to GPIO
@@ -10,7 +11,7 @@ Relay::Relay() {
 
     //Export pins to use
     GPIO::exportPin(RELAY_PIN);
-    GPIO::exportPin(12);
+    GPIO::exportPin(SECONDARY_RELAY_PIN);
     GPIO::setPinDirection(RELAY_PIN, "out");
 }
 
