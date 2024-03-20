@@ -18,10 +18,15 @@ class MessageHandler {
      * down once it receives a stop message from the UDP socket.
      */
     void init(void);
+    /**
+     * Stops the message handler.
+     */
+    void stop(void);
 
    private:
     Socket* socket;
-
+    std::thread messageHandlerThread;
+    bool isRunning;
     void handleUDPMessages(void);
 };
 
