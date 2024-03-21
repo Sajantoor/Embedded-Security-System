@@ -1,29 +1,33 @@
-#ifndef MESSAGE_HANDLER_HPP
-#define MESSAGE_HANDLER_HPP
+#ifndef _MESSAGE_HANDLER_HPP_
+#define _MESSAGE_HANDLER_HPP_
 
 #include <iostream>
 
-#include "hal/sampler.hpp"
 #include "socket.hpp"
 
+/**
+ Responsible for handling the messages received from the
+ UDP socket and calling the appropriate functions in the Sampler class.
+ Also responsible for calling the shutdown funciton.
+*/
 class MessageHandler {
    public:
-    MessageHandler(Socket* socket, Sampler* sampler);
-    ~MessageHandler();
-    void init();
-    void shutdown();
+    MessageHandler(Socket* socket);
+    /**
+     * Starts the message handler on a new thread. This function will only shut
+     * down once it receives a stop message from the UDP socket.
+     */
+    void init(void);
+    /**
+     * Stops the message handler.
+     */
+    void stop(void);
 
    private:
     Socket* socket;
-    Sampler* sampler;
-
-    void handleUDPMessages();
-    void handleStop(UdpMessage* message);
-    void handleHelp(UdpMessage* message);
-    void handleCount(UdpMessage* message);
-    void handleLength(UdpMessage* message);
-    void handleDips(UdpMessage* message);
-    void handleHistory(UdpMessage* message);
+    std::thread messageHandlerThread;
+    bool isRunning;
+    void handleUDPMessages(void);
 };
 
 #endif

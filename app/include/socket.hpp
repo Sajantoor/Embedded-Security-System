@@ -1,5 +1,6 @@
-#ifndef SOCKET_HPP
-#define SOCKET_HPP
+
+#ifndef _SOCKET_HPP_
+#define _SOCKET_HPP_
 
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -11,6 +12,11 @@
 static constexpr const int BUFFER_SIZE = 1024;
 static constexpr const int PORT = 12345;
 
+/**
+ * Represents a message that is sent or recieved from the UDP socket.
+ * Contains the message, the ip address of the sender and the port of the
+ * sender.
+ */
 class UdpMessage {
    public:
     UdpMessage(std::string message, std::string ip, unsigned int port) {
@@ -19,9 +25,9 @@ class UdpMessage {
         this->port = port;
     }
 
-    std::string getMessage() { return message; }
-    std::string getIp() { return ip; }
-    unsigned int getPort() { return port; }
+    std::string getMessage(void) { return message; }
+    std::string getIp(void) { return ip; }
+    unsigned int getPort(void) { return port; }
     void setMessage(std::string message) { this->message = message; }
 
    private:
@@ -30,14 +36,33 @@ class UdpMessage {
     unsigned int port;
 };
 
+/*
+ Handles the UDP socket implementation
+*/
 class Socket {
    public:
-    Socket();
-    ~Socket();
-    UdpMessage* receive();
+    Socket(void);
+    /**
+     * CLoses the socket and stops the recieving thread.
+     */
+    void closeSocket(void);
+    /**
+     * Recieves a message from the UDP socket. UdpMessage is allocated using new
+     * and must be freed by the caller.
+     */
+    UdpMessage* receive(void);
+    /**
+     * Sends a message
+     */
     void send(UdpMessage* message);
-    bool getIsRecieving();
-    void stopRecieving();
+    /**
+     * Returns true if the socket is currently recieving messages.
+     */
+    bool getIsRecieving(void);
+    /**
+     * Stops recieving messages from the socket.
+     */
+    void stopRecieving(void);
 
    private:
     int socketFd;
