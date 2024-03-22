@@ -22,3 +22,8 @@ void Relay::open() {
 void Relay::close() {
     GPIO::setPinValue(RELAY_PIN, 1);
 }
+
+bool Relay::isOpen() {
+    // 1 for closed, 0 for open. 
+    return !GPIO::getPinValue(RELAY_PIN);
+}

@@ -10,6 +10,7 @@ class Relay {
 
     void open();
     void close();
+    bool isOpen();
 };
 
 #endif
