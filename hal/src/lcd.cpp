@@ -13,12 +13,25 @@
 #define LCD_LENGTH 16
 #define LCD_WIDTH 2
 
-LCD::LCD(LcdDisplayMode displayMode) {
-    std::cout << "Starting lcd init" << std::endl;
-
+LCD::LCD() {
+    std::cout << "Initializing LCD" << std::endl;
     GPIO gpio = GPIO();
-    // this->dispMode = displayMode;
     this->gpio = gpio;
+    
+    gpio.exportPin(LcdGpioPins::D4);
+    gpio.exportPin(LcdGpioPins::D5);
+    gpio.exportPin(LcdGpioPins::D6);
+    gpio.exportPin(LcdGpioPins::D7);
+    gpio.exportPin(LcdGpioPins::RS);
+    gpio.exportPin(LcdGpioPins::E);
+
+    gpio.configPin(P9, 27, "gpio");
+    gpio.configPin(P9, 15, "gpio");
+    gpio.configPin(P8, 7, "gpio");
+    gpio.configPin(P8, 9, "gpio");
+    gpio.configPin(P8, 10, "gpio");
+    gpio.configPin(P8, 8, "gpio");
+
     gpio.setPinDirection(LcdGpioPins::D4, "out");
     gpio.setPinDirection(LcdGpioPins::D5, "out");
     gpio.setPinDirection(LcdGpioPins::D6, "out");
@@ -26,7 +39,6 @@ LCD::LCD(LcdDisplayMode displayMode) {
     gpio.setPinDirection(LcdGpioPins::RS, "out");
     gpio.setPinDirection(LcdGpioPins::E, "out");
 
-    std::cout << "Resetting Pins to 0" << std::endl;
     gpio.setPinValue(LcdGpioPins::D4, "0");
     gpio.setPinValue(LcdGpioPins::D5, "0");
     gpio.setPinValue(LcdGpioPins::D6, "0");
@@ -34,23 +46,8 @@ LCD::LCD(LcdDisplayMode displayMode) {
     gpio.setPinValue(LcdGpioPins::RS, "0");
     gpio.setPinValue(LcdGpioPins::E, "0");
 
-    std::cout << "Initializing LCD" << std::endl;
-    // The first 3 function set calls lets the lcd know to reset and
-    // reinitialize on the 4th function set    
-
-        
-    write4bits(0x03); // Function set 1. 
-    sleepForMs(5);
-
-    write4bits(0x3); // Function set 2
-    sleepForNs(128000);
-
-    write4bits(0x3); // Function set 3
-    sleepForNs(128000);
-
-    write4bits(0x2); // Function set to change to 4 bit mode
-    sleepForMs(1);
-
+    initLCD();
+    
     functionSet(0, 1, 0); // Function set: 2 line display, 5x8 dot char font
     sleepForNs(128000);
 
@@ -65,66 +62,23 @@ LCD::LCD(LcdDisplayMode displayMode) {
 
     displayControl(1, 1, 1); // Display on, cursor on, blinking on
     sleepForNs(64000);
-
-
-    // write8bits(0x30); // Function set 1. 
-    // sleepForMs(5);
-
-    // write8bits(0x30); // Function set 2
-    // sleepForNs(128000);
-
-    // write8bits(0x30); // Function set 3
-    // sleepForNs(128000);
-
-    // write8bits(0x38); // Function set: 2 line display, 5x8 dot char font
-    // sleepForNs(128000);
-
-    // write8bits(0x08); // Display off, cursor off, blinking off
-    // sleepForNs(128000);
-
-    // write8bits(0x01); // clear display
-    // sleepForNs(64000);
-
-    // write8bits(0x06); // Entry Mode set: Increment by 1, no shift
-    // sleepForNs(128000);
-
-    // write8bits(0x0F); // Display on, cursor on, blinking on
-    // sleepForNs(64000);
-
-    // gpio.setPinValue(LcdGpioPins::RS, "1"); // RS = 1 lets you write data to lcd
-}
-LCD::~LCD() {
 }
 
-// Not used
-// void LCD::write8bits(uint8_t value) {
-//     char strBit[2];
-//     strBit[1] = '\0'; 
+void LCD::initLCD() {
+    // The first 3 function set calls lets the lcd know to reset and
+    // reinitialize on the 4th function set    
+    write4bits(0x03); // Function set 1. 
+    sleepForMs(5);
 
-//     strBit[0] = (value & 0x01 ? 1 : 0) + '0';
-// 	gpio.setPinValue(LcdGpioPins::D0, strBit);
-    
-//     strBit[0] = ((value >> 1) & 0x01 ? 1 : 0) + '0';
-// 	gpio.setPinValue(LcdGpioPins::D1, strBit);
-    
-//     strBit[0] = ((value >> 2) & 0x01 ? 1 : 0) + '0';
-// 	gpio.setPinValue(LcdGpioPins::D2, strBit);
-    
-//     strBit[0] = ((value >> 3) & 0x01 ? 1 : 0) + '0';
-// 	gpio.setPinValue(LcdGpioPins::D3, strBit);
+    write4bits(0x3); // Function set 2
+    sleepForNs(128000);
 
-//     strBit[0] = ((value >> 4) & 0x01 ? 1 : 0) + '0';
-// 	gpio.setPinValue(LcdGpioPins::D4, strBit);
+    write4bits(0x3); // Function set 3
+    sleepForNs(128000);
 
-//     strBit[0] = ((value >> 5) & 0x01 ? 1 : 0) + '0';
-//     gpio.setPinValue(LcdGpioPins::D5, strBit);
-
-//     strBit[0] = ((value >> 6) & 0x01 ? 1 : 0) + '0';
-//     gpio.setPinValue(LcdGpioPins::D6, strBit);
-
-//     strBit[0] = ((value >> 7) & 0x01 ? 1 : 0) + '0';
-//     gpio.setPinValue(LcdGpioPins::D7, strBit);
-// }
+    write4bits(0x2); // Function set to change to 4 bit mode
+    sleepForMs(1);
+}
 
 void LCD::write4bits(uint8_t value) {
     char strBit[2];
@@ -166,53 +120,41 @@ void LCD::returnHome() {
     sleepForMs(2);
 }
 
-void LCD::entryModeSet(uint8_t id, uint8_t s) {
+void LCD::entryModeSet(bool cursorDir, uint8_t displayShift) {
     gpio.setPinValue(LcdGpioPins::RS, "0");
-    id = id << 1;
-    uint8_t val = 0x4 + id + s;
-    std::bitset<4> x(val);
-    std::cout << std::bitset<4> (0x0) << ' ';
-    std::cout << x << '\n';
+    uint8_t id = cursorDir << 1;
+    uint8_t val = 0x4 + id + displayShift;
     write4bits(0x0);
     write4bits(val & 0xF);
     sleepForNs(64000);
 }
 
-void LCD::displayControl(uint8_t d, uint8_t c, uint8_t b) {
+void LCD::displayControl(bool dispOn, bool cursorOn, bool blinkOn) {
     gpio.setPinValue(LcdGpioPins::RS, "0");
-    d = d << 2;
-    c = c << 1;
-    uint8_t val = 0x8 + d + c + b;
-    std::bitset<4> x(val);
-    std::cout << std::bitset<4> (0x0) << ' ';
-    std::cout << x << '\n';
+    uint8_t d = dispOn << 2;
+    uint8_t c = cursorOn << 1;
+    uint8_t val = 0x8 + d + c + blinkOn;
     write4bits(0x0);
     write4bits(val & 0xF);
     sleepForNs(64000);
 }
 
-void LCD::cursorOrDisplayShift(uint8_t sc, uint8_t rl) {
+void LCD::cursorOrDisplayShift(bool shiftOrCursor, bool rightOrLeft) {
     gpio.setPinValue(LcdGpioPins::RS, "0");
-    sc = sc << 3;
-    rl = rl << 2;
+    uint8_t sc = shiftOrCursor << 3;
+    uint8_t rl = rightOrLeft << 2;
     uint8_t val = sc + rl;
-    std::bitset<8> x(val);
-    std::cout << x << '\n';
     write4bits(0x1);
     write4bits(val & 0xF);
     sleepForNs(64000);
 }
 
-void LCD::functionSet(uint8_t dl, uint8_t n, uint8_t f) {
+void LCD::functionSet(bool dispMode, bool numOfLines, bool fontSize) {
     gpio.setPinValue(LcdGpioPins::RS, "0");
-    uint8_t upperVal = 0x2 + dl;
-    n = n << 3;
-    f = f << 2;
+    uint8_t upperVal = 0x2 + dispMode;
+    uint8_t n = numOfLines << 3;
+    uint8_t f = fontSize << 2;
     uint8_t lowerVal = (n + f);
-    std::bitset<4> x(upperVal);
-    std::cout << x << " ";
-    std::bitset<4> y(lowerVal);
-    std::cout << y << '\n';
     write4bits(upperVal);
     write4bits(lowerVal & 0xF);
     sleepForNs(64000);
@@ -234,7 +176,7 @@ void LCD::setDdramAddress(uint8_t addr) {
     sleepForNs(64000);
 }
 
-void LCD::writeDataToLCD(std::string msg) {
+void LCD::displayToLCD(std::string msg) {
     gpio.setPinValue(LcdGpioPins::RS, "1");
     for(unsigned int i = 0; i < msg.length(); i++) {
         write4bits(msg[i] >> 4);

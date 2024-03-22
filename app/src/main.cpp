@@ -7,16 +7,16 @@
 
 int main(void) {
     std::cout << "Hello, World!" << std::endl;
-    LCD l = LCD(LcdDisplayMode::eightBit);
+    LCD lcd = LCD();
 
     // first 16 chars shown ("My ")
     // 24 chars not shown
     // then 16 shown ("working")
     // final 19 chars not displayed
-    // l.displayMessage("Hello World!!! My Name is Jimmy.");
+    // lcd.displayMessage("Hello World!!! My Name is Jimmy.");
     
-    l.clearDisplay();
-    l.writeDataToLCD("abcdefghi ");
-    l.writeDataToLCD("jklmnopqrstuvwxyz0123456789");
+    lcd.clearDisplay();
+    lcd.displayToLCD("abcdefghi ");
+    lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
     return 0;
 }

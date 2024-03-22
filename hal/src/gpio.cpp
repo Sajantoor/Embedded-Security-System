@@ -36,7 +36,9 @@ void GPIO::exportPin(int pin) {
 
 void GPIO::configPin(headerType header, int pin, std::string setting) {
 	std::stringstream commandStream;
-	commandStream << "config-pin p" << header << "." << pin << " " << setting;
+	char pinStr[3];
+	snprintf(pinStr, 3, "%02d", pin);
+	commandStream << "config-pin p" << header << "." << pinStr << " " << setting;
 	runCommand(commandStream.str(), false);
 }
 
