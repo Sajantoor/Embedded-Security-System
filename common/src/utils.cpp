@@ -14,6 +14,13 @@ void sleepForMs(long long ms) {
 	nanosleep(&sleep_time, NULL);
 }
 
+void sleepForNs(long long ns) {
+	struct timespec sleep_time;
+	sleep_time.tv_sec = ns/1000000000;
+	sleep_time.tv_nsec = ns;
+	nanosleep(&sleep_time, NULL);
+}
+
 long long getTimeInMs(void) {
 	struct timespec spec;
 	clock_gettime(CLOCK_REALTIME, &spec);

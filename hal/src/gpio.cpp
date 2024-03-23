@@ -37,7 +37,10 @@ void GPIO::exportPin(int pin) {
 
 void GPIO::configPin(headerType header, int pin, std::string setting) {
     std::stringstream commandStream;
-    commandStream << "config-pin p" << header << "." << pin << " " << setting;
+    char pinStr[3];
+    snprintf(pinStr, 3, "%02d", pin);
+    commandStream << "config-pin p" << header << "." << pinStr << " "
+                  << setting;
     runCommand(commandStream.str(), false);
 }
 
@@ -61,9 +64,14 @@ int GPIO::getPinValue(int pin) {
 
 void GPIO::setPinValue(int pin, int value) {
     std::ostringstream pathStream;
-    pathStream << GPIO_PATH << pin << GPIO_VALUE;
-    std::string path = pathStream.str();
+    // convert pin to a string with 0 appended to it if it's 0-9
+    if (pin < 10) {
+        pathStream << GPIO_PATH << "0" << pin << GPIO_VALUE;
+    } else {
+        pathStream << GPIO_PATH << pin << GPIO_VALUE;
+    }
 
+    std::string path = pathStream.str();
     std::ofstream valueFile(path);
     if (valueFile.is_open()) {
         valueFile << value;
@@ -93,7 +101,6 @@ void GPIO::setPinDirection(int pin, std::string direction) {
     std::ostringstream pathStream;
     pathStream << GPIO_PATH << pin << GPIO_DIRECTION;
     std::string path = pathStream.str();
-
     std::ofstream directionFile(path);
     if (directionFile.is_open()) {
         directionFile << direction;
@@ -104,6 +111,4 @@ void GPIO::setPinDirection(int pin, std::string direction) {
     }
 }
 
-bool GPIO::isPinActive(int pin) { 
-	return getPinValue(pin) == 1; 
-}
+bool GPIO::isPinActive(int pin) { return getPinValue(pin) == 1; }
