@@ -14,8 +14,8 @@ void testLCD();
 int main(void) {
     std::cout << "Hello, World!" << std::endl;
     // testRelay();
-    // testLCD();
-    testKeypad();
+    testLCD();
+    // testKeypad();
     return 0;
 }
 
@@ -38,7 +38,7 @@ void testKeypad() {
     std::cout << "You entered: " << keypad.getInput() << std::endl;
 }
 
-void testLcd() {
+void testLCD() {
     LCD lcd = LCD();
 
     // first 16 chars shown ("My ")
@@ -48,6 +48,7 @@ void testLcd() {
     // lcd.displayMessage("Hello World!!! My Name is Jimmy.");
 
     lcd.clearDisplay();
+    sleepForMs(2000);
     lcd.displayToLCD("abcdefghi ");
     lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
 }

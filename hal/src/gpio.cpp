@@ -71,9 +71,7 @@ void GPIO::setPinValue(int pin, int value) {
         pathStream << GPIO_PATH << pin << GPIO_VALUE;
     }
 
-    pathStream << GPIO_PATH << pin << GPIO_VALUE;
     std::string path = pathStream.str();
-
     std::ofstream valueFile(path);
     if (valueFile.is_open()) {
         valueFile << value;

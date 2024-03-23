@@ -84,20 +84,17 @@ void LCD::initLCD() {
 }
 
 void LCD::write4bits(uint8_t value) {
-    char strBit[2];
-    strBit[1] = '\0';
+    uint8_t bit = value & 0x01;
+    gpio.setPinValue(LcdGpioPins::D4, bit);
 
-    strBit[0] = (value & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D4, atoi(strBit));
+    bit = (value >> 1) & 0x01;
+    gpio.setPinValue(LcdGpioPins::D5, bit);
 
-    strBit[0] = ((value >> 1) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D5, atoi(strBit));
+    bit = (value >> 2) & 0x01;
+    gpio.setPinValue(LcdGpioPins::D6, bit);
 
-    strBit[0] = ((value >> 2) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D6, atoi(strBit));
-
-    strBit[0] = ((value >> 3) & 0x01 ? 1 : 0) + '0';
-    gpio.setPinValue(LcdGpioPins::D7, atoi(strBit));
+    bit = (value >> 3) & 0x01;
+    gpio.setPinValue(LcdGpioPins::D7, bit);
 
     enablePulse();
 }
