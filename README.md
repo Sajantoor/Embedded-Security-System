@@ -89,3 +89,13 @@ To manually run CMake from the command line use:
   # Build (compile & link) the project
   cmake --build build
 ```
+## GPIO PINS USED
+LCD:
+- P9_15
+- P9_27
+- P8_7
+- P8_8
+- P8_9
+- P8_10
+- P9_1 (Ground)
+- P9_7 (5V Power)
