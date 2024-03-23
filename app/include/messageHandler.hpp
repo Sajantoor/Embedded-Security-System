@@ -12,12 +12,12 @@
 */
 class MessageHandler {
    public:
-    MessageHandler(Socket* socket);
     /**
      * Starts the message handler on a new thread. This function will only shut
      * down once it receives a stop message from the UDP socket.
      */
-    void init(void);
+    MessageHandler(Socket* socket);
+
     /**
      * Stops the message handler.
      */

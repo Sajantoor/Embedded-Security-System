@@ -1,8 +1,6 @@
 #include "messageHandler.hpp"
 
-MessageHandler::MessageHandler(Socket* socket) : socket(socket) {}
-
-void MessageHandler::init(void) {
+MessageHandler::MessageHandler(Socket* socket) : socket(socket) {
     isRunning = true;
     handleUDPMessages();
 }
@@ -17,14 +15,35 @@ void MessageHandler::handleUDPMessages(void) {
 
             // Remove newline character
             messageString = messageString.substr(0, messageString.find("\n"));
-            // split messageString into command and argument
             std::string command =
                 messageString.substr(0, messageString.find(" "));
             std::string argument =
                 messageString.substr(messageString.find(" ") + 1);
 
-            if (command == "whatever") {
-                // handle the command
+            /**
+             * commands:
+             *
+             * lock
+             * unlock
+             * changePassword [password]
+             * setDisplayMessage [message] [timeout (in seconds) optional]
+             * shutdown
+             *
+             * (once timeout is reached, goes back to default message which
+             * shows the status of the door)
+             */
+            if (command == "lock") {
+                // handleLock();
+            } else if (command == "unlock") {
+                // handleUnlock();
+            } else if (command == "changePassword") {
+                // handleChangePassword(argument);
+            } else if (command == "setDisplayMessage") {
+                // handleSetDisplayMessage(argument);
+            } else if (command == "shutdown") {
+                // handleShutdown();
+            } else {
+                std::cout << "Invalid command" << std::endl;
             }
 
             delete message;
