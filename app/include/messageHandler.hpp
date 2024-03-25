@@ -1,8 +1,6 @@
 #ifndef _MESSAGE_HANDLER_HPP_
 #define _MESSAGE_HANDLER_HPP_
 
-#include <iostream>
-
 #include "socket.hpp"
 
 /**

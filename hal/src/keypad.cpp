@@ -45,14 +45,18 @@ std::string Keypad::getInput(void) {
 }
 
 void Keypad::startInput(void) {
-	std::cout << "Enter " << inputLength << " digits. Digits 1 through 8 are supported." << std::endl;
+	std::cout << "Enter " << inputLength << " digits from 1 to 8: " << std::flush;
 
 	buttonsPressed = "";
 	while (true) {
 		for (size_t i = 0; i < KEYPAD_GPIO_PINS.size(); i++) {
+			if (buttonsPressed.length() == inputLength) {
+				std::cout << std::endl;
+				return;
+			}
 			if (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {
 				buttonsPressed.append(1, KEYPAD_BUTTONS[i]);
-				if (buttonsPressed.length() == inputLength) return;
+				std::cout << KEYPAD_BUTTONS[i] << std::flush;
 				// Wait for button to be released
 				while (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {};
 			}
