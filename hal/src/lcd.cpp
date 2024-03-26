@@ -20,6 +20,7 @@ LCD::LCD() {
     std::cout << "Initializing LCD" << std::endl;
     GPIO gpio = GPIO();
     this->gpio = gpio;
+    msgLen = 0;
 
     gpio.exportPin(LcdGpioPins::D4);
     gpio.exportPin(LcdGpioPins::D5);
@@ -111,6 +112,7 @@ void LCD::clearDisplay() {
     write4bits(0x0);
     write4bits(0x1);
     sleepForNs(64000);
+    msgLen = 0;
 }
 
 void LCD::returnHome() {
@@ -182,10 +184,11 @@ void LCD::displayToLCD(std::string msg) {
         write4bits(msg[i] >> 4);
         write4bits(msg[i] & 0xF);
 
-        if (i == LCD_LENGTH - 1) {
+        if (msgLen + i == LCD_LENGTH - 1) {
             setDdramAddress(0x40);
             gpio.setPinValue(LcdGpioPins::RS, 1);
         }
         sleepForNs(64000);
     }
+    msgLen += msg.length();
 }
