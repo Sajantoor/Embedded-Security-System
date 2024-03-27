@@ -179,16 +179,50 @@ void LCD::setDdramAddress(uint8_t addr) {
 }
 
 void LCD::displayToLCD(std::string msg) {
-    gpio.setPinValue(LcdGpioPins::RS, 1);
-    for (unsigned int i = 0; i < msg.length(); i++) {
-        write4bits(msg[i] >> 4);
-        write4bits(msg[i] & 0xF);
-
-        if (msgLen + i == LCD_LENGTH - 1) {
-            setDdramAddress(0x40);
-            gpio.setPinValue(LcdGpioPins::RS, 1);
-        }
-        sleepForNs(64000);
+    //DDRAM size is 80 bytes
+    if(msg.length() > 80) {
+        std::cerr << "message length cannot be greater than 80 chars" << std::endl;
     }
-    msgLen += msg.length();
+    else if(msg.length() > 32) {
+        unsigned int msgIndex = 0;
+        bool finishedMsg = false;
+        while (true) {
+            gpio.setPinValue(LcdGpioPins::RS, 1);
+            for (unsigned int i = msgIndex; i < (LCD_LENGTH+msgIndex); i++) {
+                if(i > msg.length()-1) {
+                    finishedMsg = true;
+                    break;
+                }
+                write4bits(msg[i] >> 4);
+                write4bits(msg[i] & 0xF);
+                sleepForNs(64000);
+            }
+            if(msgIndex == 0) {
+                sleepForMs(1500);
+            }
+            msgLen += msg.length();
+            msgIndex++;
+            sleepForMs(400);
+            if(finishedMsg) {
+                msgIndex = 0;
+                finishedMsg = false;
+                sleepForMs(1500);
+            }
+            clearDisplay();
+        }
+    }
+    else {
+        gpio.setPinValue(LcdGpioPins::RS, 1);
+        for (unsigned int i = 0; i < msg.length(); i++) {
+            write4bits(msg[i] >> 4);
+            write4bits(msg[i] & 0xF);
+
+            if (msgLen + i == LCD_LENGTH - 1) {
+                setDdramAddress(0x40);
+                gpio.setPinValue(LcdGpioPins::RS, 1);
+            }
+            sleepForNs(64000);
+        }
+        msgLen += msg.length();
+    }
 }
