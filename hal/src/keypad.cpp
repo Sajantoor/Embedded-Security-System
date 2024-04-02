@@ -1,11 +1,9 @@
 #include "hal/keypad.hpp"
-#include <iostream>
 #include <vector>
 #include <hal/gpio.hpp>
 #include <common/utils.hpp>
 
 /*
-
 Keypad pins are from left to right at the bottom of the keypad.
 The GPIO pins are on the P8 header.
 
@@ -38,30 +36,39 @@ Keypad::Keypad(unsigned int inputLength) {
 		GPIO::exportPin(pin);
 		GPIO::setPinDirection(pin, "in");
 	}
+	keypadThread = std::thread([this] {
+		while (isRunning) {
+			readKeys();
+		}
+		});
+}
+
+void Keypad::stop(void) {
+	isRunning = false;
+	keypadThread.join();
 }
 
 std::string Keypad::getInput(void) {
 	return buttonsPressed;
 }
 
-void Keypad::startInput(void) {
-	std::cout << "Enter " << inputLength << " digits from 1 to 8: " << std::flush;
-
-	buttonsPressed = "";
-	while (true) {
-		for (size_t i = 0; i < KEYPAD_GPIO_PINS.size(); i++) {
-			if (buttonsPressed.length() == inputLength) {
-				std::cout << std::endl;
-				return;
-			}
-			if (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {
-				buttonsPressed.append(1, KEYPAD_BUTTONS[i]);
-				std::cout << KEYPAD_BUTTONS[i] << std::flush;
-				// Wait for button to be released
-				while (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {};
-			}
+void Keypad::readKeys(void) {
+	for (size_t i = 0; i < KEYPAD_GPIO_PINS.size(); i++) {
+		if (buttonsPressed.length() >= inputLength) break;
+		if (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {
+			buttonsPressed.append(1, KEYPAD_BUTTONS[i]);
+			// Wait for button to be released
+			while (GPIO::getPinValue(KEYPAD_GPIO_PINS[i]) == BUTTON_DOWN_PIN_VALUE) {};
 		}
 	}
+}
+
+bool Keypad::isInputComplete(void) {
+	return buttonsPressed.length() >= inputLength;
+}
+
+void Keypad::startInput(void) {
+	buttonsPressed = "";
 }
 
 void Keypad::setInputLength(unsigned int length) {
