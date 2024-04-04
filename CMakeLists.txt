@@ -1,6 +1,6 @@
 # CMake Build Configuration for root of project
 cmake_minimum_required(VERSION 3.18)
-project(assignment_2 VERSION 1.0 DESCRIPTION "Project" LANGUAGES CXX)
+project(assignment_2 VERSION 1.0 DESCRIPTION "Project" LANGUAGES C CXX)
 
 # Compiler options (inherited by sub-folders)
 set(CMAKE_CXX_STANDARD 17)
