@@ -3,7 +3,7 @@
 #   Use header as: #include "hal/button.h"
 
 include_directories(hal/include)
-file(GLOB MY_SOURCES "src/*.cpp")
+file(GLOB MY_SOURCES "src/*.c" "src/*.cpp")
 
 add_library(hal STATIC ${MY_SOURCES})
 

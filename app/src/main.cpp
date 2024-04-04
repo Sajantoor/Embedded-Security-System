@@ -7,17 +7,19 @@
 #include "hal/led.hpp"
 #include "hal/relay.hpp"
 #include "password.hpp"
+#include "hal/webcam.hpp"
 
 void testRelay();
 void testKeypad(Password& password);
 void testLCD();
+void testWebcam();
 
 int main(void) {
     Password password;
     std::cout << "Hello, World!" << std::endl;
     // testRelay();
     // testLCD();
-    testKeypad(password);
+    // testKeypad(password);
     return 0;
 }
 
@@ -70,4 +72,8 @@ void testLCD() {
     sleepForMs(2000);
     lcd.displayToLCD("abcdefghi ");
     lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
+}
+
+void testWebcam(){
+    startStream();
 }
