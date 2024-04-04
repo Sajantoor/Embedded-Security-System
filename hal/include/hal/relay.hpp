@@ -5,7 +5,7 @@
  * Handle opening and closing the relay to open and close lock
  */
 class Relay {
-   public:
+  public:
     Relay();
 
     void open();

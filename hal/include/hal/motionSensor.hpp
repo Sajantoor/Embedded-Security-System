@@ -2,9 +2,9 @@
  * Motion sensor interface
  */
 class MotionSensor {
-   public:
+  public:
     static bool isMotionDetected(void);
 
-   private:
+  private:
     static unsigned int getA2DReading(void);
 };

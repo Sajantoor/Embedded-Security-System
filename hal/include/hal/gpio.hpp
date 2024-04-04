@@ -9,7 +9,7 @@ typedef enum { P8 = 8, P9 = 9 } headerType;
 Contains methods for interacting with the GPIO pins.
 */
 class GPIO {
-   public:
+  public:
     static void exportPin(int pin);
     static void configPin(headerType header, int pin, std::string setting);
     static int getPinValue(int pin);
