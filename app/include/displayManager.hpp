@@ -7,22 +7,22 @@ These messages disappear when the keypad is pressed, showing keypad input.
 #ifndef _DISPLAY_MANAGER_HPP_
 #define _DISPLAY_MANAGER_HPP_
 
-#include "hal/lcd.hpp"
-#include "hal/keypad.hpp"
 #include <stdbool.h>
+#include "hal/keypad.hpp"
+#include "hal/lcd.hpp"
 
 class DisplayManager {
-private:
-	LCD& lcd;
-	Keypad& keypad;
+  private:
+    LCD& lcd;
+    Keypad& keypad;
 
-public:
-	DisplayManager(LCD& lcd, Keypad& keypad);
+  public:
+    DisplayManager(LCD& lcd, Keypad& keypad);
 
-	// Display a message on the LCD screen
-	// If timeout is set, the message will be cleared after the timeout
-	// If requireKeypadInput is set to true, keypad input will replace the message
-	void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
+    // Display a message on the LCD screen
+    // If timeout is set, the message will be cleared after the timeout
+    // If requireKeypadInput is set to true, keypad input will replace the message
+    void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
 };
 
 #endif

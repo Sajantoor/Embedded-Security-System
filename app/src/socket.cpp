@@ -8,9 +8,7 @@
 Socket::Socket(void) {
     // Create a new IPv4 UDP socket
     int socketFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (socketFd == -1) {
-        std::cerr << "Failed to create socket" << std::endl;
-    }
+    if (socketFd == -1) { std::cerr << "Failed to create socket" << std::endl; }
 
     struct sockaddr_in serverAddress;
 
@@ -19,8 +17,7 @@ Socket::Socket(void) {
     serverAddress.sin_port = htons(PORT);
 
     // Bind the socket to the port
-    if (bind(socketFd, (struct sockaddr*)&serverAddress,
-             sizeof(serverAddress)) == -1) {
+    if (bind(socketFd, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
         std::cerr << "Failed to bind socket" << std::endl;
     }
 
@@ -39,8 +36,7 @@ UdpMessage* Socket::receive(void) {
     socklen_t clientAddressLen = sizeof(clientAddress);
 
     int bytesRead =
-        recvfrom(this->socketFd, buffer, sizeof(buffer) - 1, 0,
-                 (struct sockaddr*)&clientAddress, &clientAddressLen);
+        recvfrom(this->socketFd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr*)&clientAddress, &clientAddressLen);
 
     // Fix potential buffer overflow
     buffer[BUFFER_SIZE - 1] = '\0';
@@ -67,16 +63,16 @@ void Socket::send(UdpMessage* message) {
     inet_pton(AF_INET, message->getIp().c_str(), &serverAddress.sin_addr);
 
     // Send a message to the server
-    int bytesSent =
-        sendto(this->socketFd, message->getMessage().c_str(),
-               message->getMessage().size(), 0,
-               (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+    int bytesSent = sendto(this->socketFd, message->getMessage().c_str(), message->getMessage().size(), 0,
+                           (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
-    if (bytesSent == -1) {
-        std::cerr << "Failed to send message" << std::endl;
-    }
+    if (bytesSent == -1) { std::cerr << "Failed to send message" << std::endl; }
 }
 
-bool Socket::getIsRecieving(void) { return isRecieving; }
+bool Socket::getIsRecieving(void) {
+    return isRecieving;
+}
 
-void Socket::stopRecieving(void) { this->isRecieving = false; }
+void Socket::stopRecieving(void) {
+    this->isRecieving = false;
+}

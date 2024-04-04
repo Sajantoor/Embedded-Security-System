@@ -27,8 +27,7 @@ void GPIO::exportPin(int pin) {
         exportFile << pin;
         exportFile.close();
     } else {
-        std::cerr << "Error opening GPIO export file for pin " << pin
-                  << std::endl;
+        std::cerr << "Error opening GPIO export file for pin " << pin << std::endl;
     }
 
     // wait for pin to be exported
@@ -39,8 +38,7 @@ void GPIO::configPin(headerType header, int pin, std::string setting) {
     std::stringstream commandStream;
     char pinStr[3];
     snprintf(pinStr, 3, "%02d", pin);
-    commandStream << "config-pin p" << header << "." << pinStr << " "
-                  << setting;
+    commandStream << "config-pin p" << header << "." << pinStr << " " << setting;
     runCommand(commandStream.str(), false);
 }
 
@@ -56,8 +54,7 @@ int GPIO::getPinValue(int pin) {
         valueFile.close();
         return value;
     } else {
-        std::cerr << "Error opening GPIO value file for pin " << pin
-                  << std::endl;
+        std::cerr << "Error opening GPIO value file for pin " << pin << std::endl;
         return -1;
     }
 }
@@ -77,8 +74,7 @@ void GPIO::setPinValue(int pin, int value) {
         valueFile << value;
         valueFile.close();
     } else {
-        std::cerr << "Error opening GPIO value file for pin " << pin
-                  << std::endl;
+        std::cerr << "Error opening GPIO value file for pin " << pin << std::endl;
     }
 }
 
@@ -92,8 +88,7 @@ void GPIO::setPinActiveLow(int pin, int activeLow) {
         activeLowFile << activeLow;
         activeLowFile.close();
     } else {
-        std::cerr << "Error opening GPIO active_low file for pin " << pin
-                  << std::endl;
+        std::cerr << "Error opening GPIO active_low file for pin " << pin << std::endl;
     }
 }
 
@@ -106,9 +101,10 @@ void GPIO::setPinDirection(int pin, std::string direction) {
         directionFile << direction;
         directionFile.close();
     } else {
-        std::cerr << "Error opening GPIO direction file for pin " << pin
-                  << std::endl;
+        std::cerr << "Error opening GPIO direction file for pin " << pin << std::endl;
     }
 }
 
-bool GPIO::isPinActive(int pin) { return getPinValue(pin) == 1; }
+bool GPIO::isPinActive(int pin) {
+    return getPinValue(pin) == 1;
+}
