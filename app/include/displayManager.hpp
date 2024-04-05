@@ -8,6 +8,7 @@ These messages disappear when the keypad is pressed, showing keypad input.
 #define _DISPLAY_MANAGER_HPP_
 
 #include <stdbool.h>
+#include <string>
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 
@@ -15,6 +16,7 @@ class DisplayManager {
   private:
     LCD& lcd;
     Keypad& keypad;
+    std::string prevMsg = "";
 
   public:
     DisplayManager(LCD& lcd, Keypad& keypad);

@@ -31,6 +31,7 @@ int main(void) {
     if (!password.doesPasswordExist()) {
         displayManager.displayMessage("Please enter a password", 0, true);
         password.savePassword(keypad.getInput());
+        sleepForMs(1000);
     }
 
     // TODO: use shutdown module for this instead
@@ -38,11 +39,10 @@ int main(void) {
 
     while (!isStopped) {
         if (relay.isOpen()) {
-            displayManager.displayMessage("Door is open", 0, false);
+            displayManager.displayMessage("Door is open today. it will close later tomorrow.....", 0, false);
         } else {
             displayManager.displayMessage("Door is closed", 0, false);
         }
-
         // if joystick is pressed and door is closed, enter the password.
         if (joystick.isButtonPressed() && !relay.isOpen()) {
             displayManager.displayMessage("Enter password", 0, true);
@@ -55,6 +55,7 @@ int main(void) {
                 displayManager.displayMessage("Password incorrect", 0, false);
                 relay.close();
             }
+            sleepForMs(1000);
         }
 
         // If door is open and joystick pressed down, close the door
@@ -76,7 +77,8 @@ int main(void) {
                 displayManager.displayMessage("Password changed", 0, false);
             } else {
                 displayManager.displayMessage("Password incorrect try again", 0, false);
-            }
+           }
+           sleepForMs(1000);
         }
     }
 
