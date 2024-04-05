@@ -18,10 +18,8 @@ void MessageHandler::handleUDPMessages(void) {
             // Remove newline character
             messageString = messageString.substr(0, messageString.find("\n"));
             // split messageString into command and argument
-            std::string command =
-                messageString.substr(0, messageString.find(" "));
-            std::string argument =
-                messageString.substr(messageString.find(" ") + 1);
+            std::string command = messageString.substr(0, messageString.find(" "));
+            std::string argument = messageString.substr(messageString.find(" ") + 1);
 
             if (command == "whatever") {
                 // handle the command

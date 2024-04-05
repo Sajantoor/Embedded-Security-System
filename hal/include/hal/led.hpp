@@ -12,16 +12,16 @@ typedef enum { LED0, LED1, LED2, LED3 } ledId;
 
 class LED {
   private:
-	void updateTrigger(ledId id, const std::string trigger);
-	void removeTriggers();
-	void turnOffLeds();
+    void updateTrigger(ledId id, const std::string trigger);
+    void removeTriggers();
+    void turnOffLeds();
 
   public:
-	LED();
-	~LED();
+    LED();
+    ~LED();
 
-	void updateBrightness(ledId id, bool on);
-	void flash(const std::vector<ledId> leds, int hertz, int durationMs);
+    void updateBrightness(ledId id, bool on);
+    void flash(const std::vector<ledId> leds, int hertz, int durationMs);
 };
 
 #endif

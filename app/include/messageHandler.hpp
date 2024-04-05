@@ -9,7 +9,7 @@
  Also responsible for calling the shutdown funciton.
 */
 class MessageHandler {
-   public:
+  public:
     MessageHandler(Socket* socket);
     /**
      * Starts the message handler on a new thread. This function will only shut
@@ -21,7 +21,7 @@ class MessageHandler {
      */
     void stop(void);
 
-   private:
+  private:
     Socket* socket;
     std::thread messageHandlerThread;
     bool isRunning;

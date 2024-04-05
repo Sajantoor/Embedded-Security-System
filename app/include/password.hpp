@@ -7,21 +7,22 @@ Handle saving, changing, and comparing passwords.
 #include <string>
 
 class Password {
-private:
-	bool isPasswordSet = false;
+  private:
+    bool isPasswordSet = false;
 
-	std::string encryptPassword(const std::string& password);
+    std::string encryptPassword(const std::string& password);
 
-	void writePasswordToFile(const std::string& encryptedPassword);
+    void writePasswordToFile(const std::string& encryptedPassword);
 
-	std::string readPasswordFromFile();
-public:
-	void savePassword(const std::string& password);
+    std::string readPasswordFromFile();
 
-	// Updates password. Requires old password. Returns true if successful.
-	bool changePassword(const std::string& oldPassword, const std::string& newPassword);
+  public:
+    void savePassword(const std::string& password);
 
-	void removePassword();
+    // Updates password. Requires old password. Returns true if successful.
+    bool changePassword(const std::string& oldPassword, const std::string& newPassword);
+
+    void removePassword();
 };
 
 #endif
