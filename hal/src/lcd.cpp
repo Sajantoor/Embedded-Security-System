@@ -180,21 +180,23 @@ void LCD::setDdramAddress(uint8_t addr) {
 }
 
 void LCD::displayToLCD(std::string msg) {
-    if(msg.length() > DDRAM_SIZE) {
-        std::cerr << "message length cannot be greater than 80 chars" << std::endl;
-    }
-    else if(msg.length() > LCD_LENGTH*LCD_WIDTH) {
+    if (msg.length() > DDRAM_SIZE) {
+        std::cerr << "message length cannot be greater than 80 chars"
+                  << std::endl;
+    } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
         unsigned int msgIndex = 0;
         bool firstLoop = true;
         while (true) {
             gpio.setPinValue(LcdGpioPins::RS, 1);
-            if(msgIndex > msg.length()) {
+            if (msgIndex > msg.length()) {
                 msgIndex = 0;
             }
             for (unsigned int i = 0; i < LCD_LENGTH; i++) {
-                unsigned int currIndex = msgIndex+i < msg.length() ? msgIndex+i : (msgIndex+i)%msg.length();
-                if(currIndex == 0 && !firstLoop) {
-                    for(int j = 0; j < 5; j++) {
+                unsigned int currIndex = msgIndex + i < msg.length()
+                                             ? msgIndex + i
+                                             : (msgIndex + i) % msg.length();
+                if (currIndex == 0 && !firstLoop) {
+                    for (int j = 0; j < 5; j++) {
                         write4bits(' ' >> 4);
                         write4bits(' ' & 0xF);
                         sleepForNs(64000);
@@ -207,14 +209,13 @@ void LCD::displayToLCD(std::string msg) {
             msgLen += msg.length();
             msgIndex++;
             sleepForMs(300);
-            if(firstLoop) {
+            if (firstLoop) {
                 sleepForMs(1500);
                 firstLoop = false;
             }
             clearDisplay();
         }
-    }
-    else {
+    } else {
         gpio.setPinValue(LcdGpioPins::RS, 1);
         for (unsigned int i = 0; i < msg.length(); i++) {
             write4bits(msg[i] >> 4);
