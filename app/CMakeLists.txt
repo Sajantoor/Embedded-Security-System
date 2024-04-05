@@ -11,6 +11,6 @@ target_link_libraries(security_project LINK_PRIVATE hal)
 add_custom_command(TARGET security_project POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:security_project>"
-     "~/cmpt433/public/" 
+     "~/cmpt433/public/myApps/securityProject/" 
   COMMENT "Copying ARM executable to public NFS directory")
 

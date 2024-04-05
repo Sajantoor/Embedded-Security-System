@@ -1,6 +1,6 @@
 # Deploy this Node.js project to the public folder
 PROJECT_NAME=security-system
-DEPLOY_PATH= $(HOME)/cmpt433/public/myApps/$(PROJECT_NAME)-copy
+DEPLOY_PATH= $(HOME)/cmpt433/public/myApps/securityProject/$(PROJECT_NAME)-copy
 
 all: deploy node_install
 
