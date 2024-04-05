@@ -30,8 +30,7 @@ int main(void) {
     // initialize password
     if (!password.doesPasswordExist()) {
         displayManager.displayMessage("Please enter a password", 0, true);
-    } else {
-        displayManager.displayMessage("Enter password", 0, true);
+        password.savePassword(keypad.getInput());
     }
 
     // TODO: use shutdown module for this instead
@@ -59,6 +58,8 @@ int main(void) {
         }
 
         // If door is open and joystick pressed down, close the door
+        // If joystick is pressed may not work, need to debounce the joystick.
+        // Ideally we change this to joystick pressed or button is pressed but yeah.
         if (joystick.getDirection() == DOWN && relay.isOpen()) {
             relay.close();
         }
