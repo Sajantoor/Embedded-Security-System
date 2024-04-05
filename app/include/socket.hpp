@@ -18,9 +18,16 @@ static constexpr const int PORT = 12345;
  * sender.
  */
 class UdpMessage {
-  public:
+   public:
     UdpMessage(std::string message, std::string ip, unsigned int port) {
         this->message = message;
+        this->ip = ip;
+        this->port = port;
+    }
+
+    UdpMessage(const void* data, unsigned int size, std::string ip, unsigned int port) {
+        this->data = data; 
+        this->size = size; 
         this->ip = ip;
         this->port = port;
     }
@@ -29,10 +36,14 @@ class UdpMessage {
     std::string getIp(void) { return ip; }
     unsigned int getPort(void) { return port; }
     void setMessage(std::string message) { this->message = message; }
+    const void* getData(void) {return data;}
+    unsigned int getSize(void) { return size; }
 
-  private:
+   private:
     std::string message;
     std::string ip;
+    const void* data; 
+    unsigned int size;
     unsigned int port;
 };
 
@@ -40,7 +51,7 @@ class UdpMessage {
  Handles the UDP socket implementation
 */
 class Socket {
-  public:
+   public:
     Socket(void);
     /**
      * CLoses the socket and stops the recieving thread.
@@ -55,6 +66,7 @@ class Socket {
      * Sends a message
      */
     void send(UdpMessage* message);
+    void sendData(UdpMessage* message);
     /**
      * Returns true if the socket is currently recieving messages.
      */
@@ -64,12 +76,14 @@ class Socket {
      */
     void stopRecieving(void);
 
-    /**
+        /**
      * Sends a message to the web server
     */
     void sendToWebServer(std::string message);
 
-  private:
+    void sendDataToWebServer(const void *data, unsigned int size);
+
+private:
     int socketFd;
     bool isRecieving;
     static Socket* instance;

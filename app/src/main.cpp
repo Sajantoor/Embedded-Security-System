@@ -16,14 +16,15 @@ void testLCD();
 void testWebcam();
 
 int main(void) {
-    Password password;
-    LCD lcd;
-    Keypad keypad(4);
+    // Password password;
+    // LCD lcd;
+    // Keypad keypad(4);
     std::cout << "Hello, World!" << std::endl;
     // testRelay();
     // testLCD();
-    testDisplayWithKeypad(lcd, keypad);
-    keypad.stop();
+    // testDisplayWithKeypad(lcd, keypad);
+    // keypad.stop();
+    testWebcam();
     return 0;
 }
 
