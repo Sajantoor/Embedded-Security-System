@@ -13,3 +13,4 @@ add_custom_command(TARGET security_project POST_BUILD
      "$<TARGET_FILE:security_project>"
      "~/cmpt433/public/" 
   COMMENT "Copying ARM executable to public NFS directory")
+
