@@ -25,6 +25,11 @@ webSocketServer.on("connection", (socket) => {
         socket.emit("message", msg.toString());
     });
 
+    socket.on("connect", (client) => {
+        console.log("user connected");
+        client.emit("message", "Connected to server");
+    });
+
     socket.on("disconnect", () => {
         console.log("user disconnected");
     });
@@ -32,5 +37,36 @@ webSocketServer.on("connection", (socket) => {
     socket.on("message", (message) => {
         console.log("Received message: ", message);
         udpServer.send(message, 0, message.length, UDP_BBG_PORT, UDP_BBG_ADDRESS);
+    });
+
+    const ffmpeg = child.spawn("ffmpeg", [
+        "-re",
+        "-y",
+        "-i",
+        `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_PORT}`,
+        "-preset",
+        "ultrafast",
+        "-f",
+        "mjpeg",
+        "pipe:1",
+    ]);
+
+    ffmpeg.on("error", function (err) {
+        console.log(err);
+        throw err;
+    });
+
+    ffmpeg.on("close", function (code) {
+        console.log("ffmpeg exited with code " + code);
+    });
+
+    ffmpeg.stderr.on("data", function (data) {
+        // Don't remove this
+        // Child Process hangs when stderr exceed certain memory
+    });
+
+    ffmpeg.stdout.on("data", function (data) {
+        var frame = Buffer.from(data).toString("base64"); //convert raw data to string
+        socket.emit("canvas", frame); //send data to client
     });
 });
