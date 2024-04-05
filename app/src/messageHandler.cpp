@@ -1,6 +1,4 @@
 #include "messageHandler.hpp"
-#include <iostream>
-#include <vector>
 
 MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager)
     : socket(socket), relay(relay), password(password), displayManager(displayManager) {}
@@ -92,7 +90,7 @@ void MessageHandler::handleUDPMessages(void) {
             } else if (command == "shutdown") {
                 handleShutdown();
             } else {
-                std::cout << "Invalid command" << std::endl;
+                socket->sendToWebServer("Invalid command\n");
             }
 
             delete message;

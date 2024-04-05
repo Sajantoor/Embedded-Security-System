@@ -5,6 +5,8 @@
 #include "displayManager.hpp"
 #include "password.hpp"
 #include "socket.hpp"
+#include <vector>
+
 
 /**
  Responsible for handling the messages received from the
