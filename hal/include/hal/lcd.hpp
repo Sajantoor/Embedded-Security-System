@@ -9,8 +9,13 @@ class LCD {
   private:
     GPIO gpio;
     int msgLen;
+    unsigned int msgIndex;
     bool isScrolling;
+    bool isFirstLoop;
+    std::string currentMessage;
+    bool isShutdown;
     std::thread scrollingThread;
+
     void write8bits(uint8_t value);
     void write4bits(uint8_t value);
     void enablePulse();
@@ -36,6 +41,10 @@ class LCD {
     void setCgramAddress(uint8_t addr);
     // Set DDRAM (Display Data RAM) address
     void setDdramAddress(uint8_t addr);
+
+    void scrollText(std::string msg);
+    void scrollTextThread(void);
+    void displayNonScrollingText(std::string msg);
     // Initializes LCD into 4 bit mode
     void initLCD();
 
