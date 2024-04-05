@@ -39,7 +39,7 @@ int main(void) {
 
     while (!isStopped) {
         if (relay.isOpen()) {
-            displayManager.displayMessage("Door is open", 0, false);
+            displayManager.displayMessage("Door is open. it will stay open and never close.", 0, false);
         } else {
             displayManager.displayMessage("Door is closed", 0, false);
         }
@@ -78,7 +78,7 @@ int main(void) {
             if (password.changePassword(oldPassword, newPassword)) {
                 displayManager.displayMessage("Password changed", 0, false);
             } else {
-                displayManager.displayMessage("Password incorrect try again", 0, false);
+                displayManager.displayMessage("Password incorrect. try again", 0, false);
             }
 
             sleepForMs(1000);

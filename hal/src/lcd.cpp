@@ -122,6 +122,7 @@ void LCD::clearDisplay() {
     write4bits(0x1);
     sleepForNs(64000);
     msgLen = 0;
+    std::cout << "Cleared display" << std::endl;
 }
 
 void LCD::returnHome() {
@@ -196,7 +197,10 @@ void LCD::scrollText(std::string message) {
 
 void LCD::scrollTextThread() {
     while (!isShutdown) {
+        bool didScroll = false;
         while (isScrolling) {
+            std::cout << "Scrolling text" << std::endl;
+            didScroll = true;
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
             if (msgIndex > currentMessage.length()) { msgIndex = 0; }
@@ -222,17 +226,22 @@ void LCD::scrollTextThread() {
             msgIndex++;
             sleepForMs(300);
 
-            if (isFirstLoop) {
+            if (isFirstLoop && isScrolling) {
                 sleepForMs(1500);
                 isFirstLoop = false;
             }
 
             clearDisplay();
         }
+        if (didScroll) {
+            didScroll = false;
+            isDisplaying = false;
+        }
     }
 }
 
 void LCD::displayNonScrollingText(std::string msg) {
+    std::cout << "Displaying non scrolling text" << std::endl;
     gpio.setPinValue(LcdGpioPins::RS, 1);
     for (unsigned int i = 0; i < msg.length(); i++) {
         write4bits(msg[i] >> 4);
@@ -245,14 +254,19 @@ void LCD::displayNonScrollingText(std::string msg) {
         sleepForNs(64000);
     }
     msgLen += msg.length();
+    isDisplaying = false;
 }
 
 void LCD::displayToLCD(std::string msg) {
     // stop scrolling if scrolling to prevent overwrites
     isScrolling = false;
+    while (isDisplaying) {}
+    isDisplaying = true;
+    clearDisplay();
 
     if (msg.length() > DDRAM_SIZE) {
         std::cerr << "message length cannot be greater than 80 chars" << std::endl;
+        isDisplaying = false;
     } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
         scrollText(msg);
     } else {

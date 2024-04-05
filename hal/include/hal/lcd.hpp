@@ -1,7 +1,8 @@
 // Unless specified, each function will set RS Pin to 0
 #pragma once
-#include <thread>
+#include <atomic>
 #include <string>
+#include <thread>
 #include "hal/gpio.hpp"
 
 enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
@@ -12,6 +13,7 @@ class LCD {
     int msgLen = 0;
     unsigned int msgIndex = 0;
     bool isScrolling = false;
+    std::atomic<bool> isDisplaying = false;
     bool isFirstLoop = false;
     std::string currentMessage = "";
     bool isShutdown = false;
