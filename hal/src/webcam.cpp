@@ -47,18 +47,12 @@ Socket *socketA;
 // Initialize UDP connection
 void openConnectionT()
 {
-
         socketA =  new Socket();
 }
 
 // Send video frame using udp packet
 void sendResponseT(const void *str, int size)
 {
-        // const unsigned char* imageData = static_cast<const unsigned char*>(str);
-        // Create a string from the raw image data
-        // std::string message(reinterpret_cast<const char*>(imageData), size);
-        // const std::string* toSend = static_cast<const std::string*> (str);
-        std::cout << "Sneding data" << std::endl;
         socketA->sendDataToWebServer(str, size);
 }
 
@@ -675,13 +669,7 @@ int startStream()
         force_format = 2;
         out_buf++;
 
-        // char opt = '0';
-        // char *end;
-
         frame_count = 0;
-        // frame_count = atol(&opt);
-        // if (errno)
-        //         errno_exit(&opt);
 
         open_device();
         init_device();
