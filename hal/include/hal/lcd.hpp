@@ -7,6 +7,7 @@ enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
 class LCD {
   private:
     GPIO gpio;
+    int msgLen;
     void write8bits(uint8_t value);
     void write4bits(uint8_t value);
     void enablePulse();
