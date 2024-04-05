@@ -3,64 +3,82 @@
 
 #include "common/utils.hpp"
 #include "displayManager.hpp"
+#include "hal/joystick.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 #include "hal/led.hpp"
+#include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
+#include "messageHandler.hpp"
 #include "password.hpp"
-
-void testRelay();
-void testDisplayWithKeypad(LCD& lcd, Keypad& keypad);
-void testLCD();
+#include "socket.hpp"
 
 int main(void) {
-    Password password;
-    LCD lcd;
-    Keypad keypad(4);
-    std::cout << "Hello, World!" << std::endl;
-    // testRelay();
-    // testLCD();
-    testDisplayWithKeypad(lcd, keypad);
-    keypad.stop();
-    return 0;
-}
-
-void testRelay() {
+    // Init hardware
     Relay relay;
-    sleepForMs(1000);
+    Keypad keypad(4);
+    JoyStick joystick;
+    LCD lcd;
+    DisplayManager displayManager(lcd, keypad);
+    Password password;
+    Socket socket;
+    MessageHandler messageHandler(&socket, &relay, &password, &displayManager);
 
-    // Closing lock
-    relay.open();
-    sleepForMs(1000);
-
-    // Opening lock
+    // Close the relay at the start of the program
     relay.close();
-    sleepForMs(500);
-}
 
-void testDisplayWithKeypad(LCD& lcd, Keypad& keypad) {
-    DisplayManager displayManager = DisplayManager(lcd, keypad);
-    displayManager.displayMessage("Hello World!");
-    displayManager.displayMessage("Enter password:", 0, true);
-    std::cout << "Password entered: " << keypad.getInput() << std::endl;
-    displayManager.displayMessage("Door is locked", 5000);
-    displayManager.displayMessage("Confirm password:", 0, true);
-    std::cout << "Password entered: " << keypad.getInput() << std::endl;
-    displayManager.displayMessage("Door is unlocked", 5000);
-    sleepForMs(6000);
-}
+    // initialize password
+    if (!password.doesPasswordExist()) {
+        displayManager.displayMessage("Please enter a password", 0, true);
+        password.savePassword(keypad.getInput());
+    }
 
-void testLCD() {
-    LCD lcd = LCD();
+    // TODO: use shutdown module for this instead
+    bool isStopped = false;
 
-    // first 16 chars shown ("My ")
-    // 24 chars not shown
-    // then 16 shown ("working")
-    // final 19 chars not displayed
-    // lcd.displayMessage("Hello World!!! My Name is Jimmy.");
+    while (!isStopped) {
+        if (relay.isOpen()) {
+            displayManager.displayMessage("Door is open", 0, false);
+        } else {
+            displayManager.displayMessage("Door is closed", 0, false);
+        }
 
-    lcd.clearDisplay();
-    sleepForMs(2000);
-    lcd.displayToLCD("abcdefghi ");
-    lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
+        // if joystick is pressed and door is closed, enter the password.
+        if (joystick.isButtonPressed() && !relay.isOpen()) {
+            displayManager.displayMessage("Enter password", 0, true);
+            std::string input = keypad.getInput();
+
+            if (password.isPasswordCorrect(input)) {
+                displayManager.displayMessage("Password correct", 0, false);
+                relay.open();
+            } else {
+                displayManager.displayMessage("Password incorrect", 0, false);
+                relay.close();
+            }
+        }
+
+        // If door is open and joystick pressed down, close the door
+        // If joystick is pressed may not work, need to debounce the joystick.
+        // Ideally we change this to joystick pressed or button is pressed but yeah.
+        if (joystick.getDirection() == DOWN && relay.isOpen()) {
+            relay.close();
+        }
+
+        // This is temporary for testing, password change
+        if (joystick.getDirection() == UP) {
+            displayManager.displayMessage("Enter old password", 0, true);
+            std::string oldPassword = keypad.getInput();
+
+            displayManager.displayMessage("Enter new password", 0, true);
+            std::string newPassword = keypad.getInput();
+
+            if (password.changePassword(oldPassword, newPassword)) {
+                displayManager.displayMessage("Password changed", 0, false);
+            } else {
+                displayManager.displayMessage("Password incorrect try again", 0, false);
+            }
+        }
+    }
+
+    return 0;
 }

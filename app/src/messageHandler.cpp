@@ -44,11 +44,6 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
     if (arguments.size() == 2) {
         // convert seconds to milliseconds
         timeout = std::stoi(arguments[1]) * 1000;
-
-        if (timeout < 0) {
-            socket->sendToWebServer("Invalid timeout\n");
-            return;
-        }
     }
 
     displayManager->displayMessage(message, timeout);
