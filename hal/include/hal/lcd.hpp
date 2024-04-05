@@ -1,5 +1,6 @@
 // Unless specified, each function will set RS Pin to 0
 #pragma once
+#include <thread>
 #include "hal/gpio.hpp"
 
 enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
@@ -8,6 +9,8 @@ class LCD {
   private:
     GPIO gpio;
     int msgLen;
+    bool isScrolling;
+    std::thread scrollingThread;
     void write8bits(uint8_t value);
     void write4bits(uint8_t value);
     void enablePulse();
@@ -38,6 +41,7 @@ class LCD {
 
   public:
     LCD();
+    ~LCD();
     // Writes data to DDRAM. RS Pin will be set to 1
     void displayToLCD(std::string msg);
     // Clears display, sets DDRAM addr to 0, clears DDRAM values

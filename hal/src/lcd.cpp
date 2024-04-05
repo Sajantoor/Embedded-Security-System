@@ -6,7 +6,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
 #include <bitset>
 #include <iostream>
 
@@ -67,6 +66,13 @@ LCD::LCD() {
 
     displayControl(1, 1, 1);  // Display on, cursor on, blinking on
     sleepForNs(64000);
+}
+
+LCD::~LCD() {
+    if (scrollingThread.joinable()) {
+        isScrolling = false;
+        scrollingThread.join();
+    }
 }
 
 void LCD::initLCD() {
@@ -181,40 +187,45 @@ void LCD::setDdramAddress(uint8_t addr) {
 
 void LCD::displayToLCD(std::string msg) {
     if (msg.length() > DDRAM_SIZE) {
-        std::cerr << "message length cannot be greater than 80 chars"
-                  << std::endl;
+        std::cerr << "message length cannot be greater than 80 chars" << std::endl;
     } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
-        unsigned int msgIndex = 0;
-        bool firstLoop = true;
-        while (true) {
-            gpio.setPinValue(LcdGpioPins::RS, 1);
-            if (msgIndex > msg.length()) {
-                msgIndex = 0;
-            }
-            for (unsigned int i = 0; i < LCD_LENGTH; i++) {
-                unsigned int currIndex = msgIndex + i < msg.length()
-                                             ? msgIndex + i
-                                             : (msgIndex + i) % msg.length();
-                if (currIndex == 0 && !firstLoop) {
-                    for (int j = 0; j < 5; j++) {
-                        write4bits(' ' >> 4);
-                        write4bits(' ' & 0xF);
-                        sleepForNs(64000);
-                    }
-                }
-                write4bits(msg[currIndex] >> 4);
-                write4bits(msg[currIndex] & 0xF);
-                sleepForNs(64000);
-            }
-            msgLen += msg.length();
-            msgIndex++;
-            sleepForMs(300);
-            if (firstLoop) {
-                sleepForMs(1500);
-                firstLoop = false;
-            }
-            clearDisplay();
+        if (scrollingThread.joinable()) {
+            isScrolling = false;
+            scrollingThread.join();
         }
+        scrollingThread = std::thread([this, msg] {
+            clearDisplay();
+            unsigned int msgIndex = 0;
+            bool firstLoop = true;
+            isScrolling = true;
+            while (isScrolling) {
+                gpio.setPinValue(LcdGpioPins::RS, 1);
+                if (msgIndex > msg.length()) {
+                    msgIndex = 0;
+                }
+                for (unsigned int i = 0; i < LCD_LENGTH; i++) {
+                    unsigned int currIndex = msgIndex + i < msg.length() ? msgIndex + i : (msgIndex + i) % msg.length();
+                    if (currIndex == 0 && !firstLoop) {
+                        for (int j = 0; j < 5; j++) {
+                            write4bits(' ' >> 4);
+                            write4bits(' ' & 0xF);
+                            sleepForNs(64000);
+                        }
+                    }
+                    write4bits(msg[currIndex] >> 4);
+                    write4bits(msg[currIndex] & 0xF);
+                    sleepForNs(64000);
+                }
+                msgLen += msg.length();
+                msgIndex++;
+                sleepForMs(300);
+                if (firstLoop) {
+                    sleepForMs(1500);
+                    firstLoop = false;
+                }
+                clearDisplay();
+            }
+        });
     } else {
         gpio.setPinValue(LcdGpioPins::RS, 1);
         for (unsigned int i = 0; i < msg.length(); i++) {
