@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import './App.css';
 import { Heading, Center, Text, Image, Box, Switch, Input, Button } from "@chakra-ui/react";
@@ -21,17 +21,27 @@ export default function Home() {
   const [timeout, setTimeout] = useState("");
   const [socket, setSocket] = useState(null);
   const [uptime, setUptime] = useState(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     // Create a socket connection
     const url = "http://localhost:4000";
     const socket = io(url);
 
-    setSocket(socket);
+    // setSocket(socket);
+     // Listen for connection event
+     socket.on("connect", (socket) => {
+      console.log("Connected to server");
+      setSocket(socket); // Save the socket instance
+    });    
 
     // Listen for incoming messages
     socket.on("message", (message) => {
       handleMessage(message);
+    });
+
+    socket.on("canvas", (data) => {
+      drawCanvas(data);
     });
 
     // Clean up the socket connection on unmount
@@ -40,6 +50,18 @@ export default function Home() {
     };
   }, []);
 
+  function drawCanvas(data) {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    const image = new window.Image();
+    image.src = "data:image/jpeg;base64," + data;
+    image.onload = function() {
+      context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      context.height = image.height;
+      context.width = image.width;
+      context.drawImage(image, 0, 0, context.width, context.height);
+    };
+  }
 
 
   function handleMessage(message) {
@@ -104,7 +126,8 @@ export default function Home() {
         <Heading> Door Lock Status: {lockStatus} </Heading>
       </Center>
 
-      <Image src={cameraFeed || "/camera.webp"} alt="Security Camera" />
+      <canvas ref={canvasRef} width="480" height="480"></canvas>
+
       <Text> Last updated: {lastUpdated} </Text>
       <Text> Uptime: {uptime} </Text>
 

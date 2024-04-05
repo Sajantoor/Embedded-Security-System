@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const dgram = require("dgram");
+const child = require("child_process");
 
 const webSocketServer = new Server({
     cors: {
@@ -13,13 +14,14 @@ webSocketServer.listen(port);
 const UDP_SERVER_ADDRESS = "127.0.0.1";
 const UDP_SERVER_PORT = 7070;
 
-const UDP_BBG_ADDRESS = "192.168.6.2";
-const UDP_BBG_PORT = 7070;
+const UDP_BBG_ADDRESS = "192.168.7.1";
+const UDP_BBG_PORT = 1234;
 
 const udpServer = dgram.createSocket("udp4");
 udpServer.bind(UDP_SERVER_PORT, UDP_SERVER_ADDRESS);
 
 webSocketServer.on("connection", (socket) => {
+    console.log("Connection")
     udpServer.on("message", (msg) => {
         console.log("Received message from UDP server: ", msg.toString());
         socket.emit("message", msg.toString());
