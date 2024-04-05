@@ -18,7 +18,7 @@ static constexpr const int PORT = 12345;
  * sender.
  */
 class UdpMessage {
-   public:
+  public:
     UdpMessage(std::string message, std::string ip, unsigned int port) {
         this->message = message;
         this->ip = ip;
@@ -30,7 +30,7 @@ class UdpMessage {
     unsigned int getPort(void) { return port; }
     void setMessage(std::string message) { this->message = message; }
 
-   private:
+  private:
     std::string message;
     std::string ip;
     unsigned int port;
@@ -40,7 +40,7 @@ class UdpMessage {
  Handles the UDP socket implementation
 */
 class Socket {
-   public:
+  public:
     Socket(void);
     /**
      * CLoses the socket and stops the recieving thread.
@@ -64,7 +64,12 @@ class Socket {
      */
     void stopRecieving(void);
 
-   private:
+    /**
+     * Sends a message to the web server
+    */
+    void sendToWebServer(std::string message);
+
+  private:
     int socketFd;
     bool isRecieving;
     static Socket* instance;

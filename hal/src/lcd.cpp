@@ -15,11 +15,13 @@
 
 #define LCD_LENGTH 16
 #define LCD_WIDTH 2
+#define DDRAM_SIZE 80
 
 LCD::LCD() {
     std::cout << "Initializing LCD" << std::endl;
     GPIO gpio = GPIO();
     this->gpio = gpio;
+    msgLen = 0;
 
     gpio.exportPin(LcdGpioPins::D4);
     gpio.exportPin(LcdGpioPins::D5);
@@ -111,6 +113,7 @@ void LCD::clearDisplay() {
     write4bits(0x0);
     write4bits(0x1);
     sleepForNs(64000);
+    msgLen = 0;
 }
 
 void LCD::returnHome() {
@@ -177,15 +180,53 @@ void LCD::setDdramAddress(uint8_t addr) {
 }
 
 void LCD::displayToLCD(std::string msg) {
-    gpio.setPinValue(LcdGpioPins::RS, 1);
-    for (unsigned int i = 0; i < msg.length(); i++) {
-        write4bits(msg[i] >> 4);
-        write4bits(msg[i] & 0xF);
-
-        if (i == LCD_LENGTH - 1) {
-            setDdramAddress(0x40);
+    if (msg.length() > DDRAM_SIZE) {
+        std::cerr << "message length cannot be greater than 80 chars"
+                  << std::endl;
+    } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
+        unsigned int msgIndex = 0;
+        bool firstLoop = true;
+        while (true) {
             gpio.setPinValue(LcdGpioPins::RS, 1);
+            if (msgIndex > msg.length()) {
+                msgIndex = 0;
+            }
+            for (unsigned int i = 0; i < LCD_LENGTH; i++) {
+                unsigned int currIndex = msgIndex + i < msg.length()
+                                             ? msgIndex + i
+                                             : (msgIndex + i) % msg.length();
+                if (currIndex == 0 && !firstLoop) {
+                    for (int j = 0; j < 5; j++) {
+                        write4bits(' ' >> 4);
+                        write4bits(' ' & 0xF);
+                        sleepForNs(64000);
+                    }
+                }
+                write4bits(msg[currIndex] >> 4);
+                write4bits(msg[currIndex] & 0xF);
+                sleepForNs(64000);
+            }
+            msgLen += msg.length();
+            msgIndex++;
+            sleepForMs(300);
+            if (firstLoop) {
+                sleepForMs(1500);
+                firstLoop = false;
+            }
+            clearDisplay();
         }
-        sleepForNs(64000);
+    } else {
+        gpio.setPinValue(LcdGpioPins::RS, 1);
+        for (unsigned int i = 0; i < msg.length(); i++) {
+            write4bits(msg[i] >> 4);
+            write4bits(msg[i] & 0xF);
+
+            if (msgLen + i == LCD_LENGTH - 1) {
+                setDdramAddress(0x40);
+                gpio.setPinValue(LcdGpioPins::RS, 1);
+            }
+            sleepForNs(64000);
+        }
+        msgLen += msg.length();
     }
 }
