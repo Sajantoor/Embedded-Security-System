@@ -18,7 +18,6 @@ export default function Home() {
     const url = "http://localhost:4000";
     const socket = io(url);
 
-
     setSocket(socket);
 
     // Clean up the socket connection on unmount
