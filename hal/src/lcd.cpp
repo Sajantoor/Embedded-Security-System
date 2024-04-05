@@ -68,10 +68,12 @@ LCD::LCD() {
     sleepForNs(64000);
 
     // initialize the scroll thread
+    isShutdown = false;
     scrollingThread = std::thread(&LCD::scrollTextThread, this);
 }
 
 LCD::~LCD() {
+    isShutdown = true;
     isScrolling = false;
     scrollingThread.join();
 }
@@ -116,6 +118,7 @@ void LCD::enablePulse() {
 }
 
 void LCD::clearDisplay() {
+    isScrolling = false;
     gpio.setPinValue(LcdGpioPins::RS, 0);
     write4bits(0x0);
     write4bits(0x1);
