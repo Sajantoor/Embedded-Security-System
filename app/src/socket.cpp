@@ -8,7 +8,9 @@
 Socket::Socket(void) {
     // Create a new IPv4 UDP socket
     int socketFd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (socketFd == -1) { std::cerr << "Failed to create socket" << std::endl; }
+    if (socketFd == -1) {
+        std::cerr << "Failed to create socket" << std::endl;
+    }
 
     struct sockaddr_in serverAddress;
 
@@ -66,7 +68,9 @@ void Socket::send(UdpMessage* message) {
     int bytesSent = sendto(this->socketFd, message->getMessage().c_str(), message->getMessage().size(), 0,
                            (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
-    if (bytesSent == -1) { std::cerr << "Failed to send message" << std::endl; }
+    if (bytesSent == -1) {
+        std::cerr << "Failed to send message" << std::endl;
+    }
 }
 
 bool Socket::getIsRecieving(void) {
@@ -75,4 +79,10 @@ bool Socket::getIsRecieving(void) {
 
 void Socket::stopRecieving(void) {
     this->isRecieving = false;
+}
+
+void Socket::sendToWebServer(std::string message) {
+    UdpMessage* udpMessage = new UdpMessage(message, "127.0.0.1", 7070);
+    this->send(udpMessage);
+    delete udpMessage;
 }

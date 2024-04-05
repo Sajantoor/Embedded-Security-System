@@ -8,6 +8,7 @@ DisplayManager::DisplayManager(LCD& lcd, Keypad& keypad) : lcd(lcd), keypad(keyp
 void DisplayManager::displayMessage(std::string message, unsigned int timeoutInMs, bool requireKeypadInput) {
     lcd.clearDisplay();
     lcd.displayToLCD(message);
+
     if (timeoutInMs > 0) {
         std::thread([this, timeoutInMs] {
             sleepForMs(timeoutInMs);
