@@ -39,10 +39,11 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
     }
 
     std::string message = arguments[0];
-    int timeout = 0;
+    unsigned int timeout = 0;
 
     if (arguments.size() == 2) {
-        timeout = std::stoi(arguments[1]);
+        // convert seconds to milliseconds
+        timeout = std::stoi(arguments[1]) * 1000;
     }
 
     displayManager->displayMessage(message, timeout);
