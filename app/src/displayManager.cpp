@@ -17,6 +17,7 @@ void DisplayManager::displayMessage(std::string message, unsigned int timeoutInM
     } else if (requireKeypadInput) {
         keypad.startInput();
         std::string prevInput = "";
+
         while (true) {
             std::string input = keypad.getInput();
             if (input != prevInput) {
