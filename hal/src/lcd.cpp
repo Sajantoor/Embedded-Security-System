@@ -20,7 +20,6 @@ LCD::LCD() {
     std::cout << "Initializing LCD" << std::endl;
     GPIO gpio = GPIO();
     this->gpio = gpio;
-    msgLen = 0;
 
     gpio.exportPin(LcdGpioPins::D4);
     gpio.exportPin(LcdGpioPins::D5);
@@ -68,7 +67,6 @@ LCD::LCD() {
     sleepForNs(64000);
 
     // initialize the scroll thread
-    isShutdown = false;
     scrollingThread = std::thread(&LCD::scrollTextThread, this);
 }
 
@@ -76,6 +74,7 @@ LCD::~LCD() {
     isShutdown = true;
     isScrolling = false;
     scrollingThread.join();
+    clearDisplay();
 }
 
 void LCD::initLCD() {
@@ -118,7 +117,6 @@ void LCD::enablePulse() {
 }
 
 void LCD::clearDisplay() {
-    isScrolling = false;
     gpio.setPinValue(LcdGpioPins::RS, 0);
     write4bits(0x0);
     write4bits(0x1);
@@ -201,9 +199,7 @@ void LCD::scrollTextThread() {
         while (isScrolling) {
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
-            if (msgIndex > currentMessage.length()) {
-                msgIndex = 0;
-            }
+            if (msgIndex > currentMessage.length()) { msgIndex = 0; }
 
             for (unsigned int i = 0; i < LCD_LENGTH; i++) {
                 unsigned int currIndex =
