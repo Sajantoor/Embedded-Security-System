@@ -42,8 +42,11 @@ class LCD {
     // Set DDRAM (Display Data RAM) address
     void setDdramAddress(uint8_t addr);
 
+    // Scrolls text on the LCD
     void scrollText(std::string msg);
+    // Function for scroll text thread, should not be called outside of constructor
     void scrollTextThread(void);
+    // Displays non scrolling text
     void displayNonScrollingText(std::string msg);
     // Initializes LCD into 4 bit mode
     void initLCD();
