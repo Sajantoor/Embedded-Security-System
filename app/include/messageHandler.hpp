@@ -1,12 +1,11 @@
 #ifndef _MESSAGE_HANDLER_HPP_
 #define _MESSAGE_HANDLER_HPP_
 
-#include <hal/relay.hpp>
+#include <vector>
 #include "displayManager.hpp"
+#include "hal/relay.hpp"
 #include "password.hpp"
 #include "socket.hpp"
-#include <vector>
-
 
 /**
  Responsible for handling the messages received from the
