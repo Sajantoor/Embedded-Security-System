@@ -1,6 +1,9 @@
 #ifndef _MESSAGE_HANDLER_HPP_
 #define _MESSAGE_HANDLER_HPP_
 
+#include <hal/relay.hpp>
+#include "displayManager.hpp"
+#include "password.hpp"
 #include "socket.hpp"
 
 /**
@@ -10,12 +13,13 @@
 */
 class MessageHandler {
   public:
-    MessageHandler(Socket* socket);
     /**
      * Starts the message handler on a new thread. This function will only shut
      * down once it receives a stop message from the UDP socket.
      */
+    MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager);
     void init(void);
+
     /**
      * Stops the message handler.
      */
@@ -23,9 +27,18 @@ class MessageHandler {
 
   private:
     Socket* socket;
+    Relay* relay;
+    Password* password;
+    DisplayManager* displayManager;
     std::thread messageHandlerThread;
     bool isRunning;
+
     void handleUDPMessages(void);
+    void handleShutdown(void);
+    void handleLock(void);
+    void handleUnlock(void);
+    void handleChangePassword(std::vector<std::string> arguments);
+    void handleSetDisplayMessage(std::vector<std::string> arguments);
 };
 
 #endif
