@@ -17,7 +17,6 @@
 #define DDRAM_SIZE 80
 
 LCD::LCD() {
-    std::cout << "Initializing LCD" << std::endl;
     GPIO gpio = GPIO();
     this->gpio = gpio;
 
@@ -70,7 +69,7 @@ LCD::LCD() {
     scrollingThread = std::thread(&LCD::scrollTextThread, this);
 }
 
-LCD::~LCD() {
+void LCD::stop(void) {
     isShutdown = true;
     isScrolling = false;
     scrollingThread.join();
@@ -122,7 +121,6 @@ void LCD::clearDisplay() {
     write4bits(0x1);
     sleepForNs(64000);
     msgLen = 0;
-    std::cout << "Cleared display" << std::endl;
 }
 
 void LCD::returnHome() {
@@ -205,7 +203,6 @@ void LCD::scrollTextThread() {
     while (!isShutdown) {
         bool didScroll = false;
         while (isScrolling) {
-            std::cout << "Scrolling text" << std::endl;
             didScroll = true;
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
@@ -242,14 +239,11 @@ void LCD::scrollTextThread() {
 }
 
 void LCD::displayNonScrollingText(std::string msg) {
-    std::cout << "Displaying non scrolling text" << std::endl;
     for (unsigned int i = 0; i < msg.length(); i++) {
         gpio.setPinValue(LcdGpioPins::RS, 1);
         writeCharacter(msg[i]);
 
-        if (msgLen + i == LCD_LENGTH - 1) {
-            setDdramAddress(0x40);
-        }
+        if (msgLen + i == LCD_LENGTH - 1) { setDdramAddress(0x40); }
     }
     msgLen += msg.length();
     isDisplaying = false;

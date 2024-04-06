@@ -39,7 +39,7 @@ int main(void) {
 
     while (!isStopped) {
         if (relay.isOpen()) {
-            displayManager.displayMessage("Door is open. it will stay open and never close.", 0, false);
+            displayManager.displayMessage("Door is open", 0, false);
         } else {
             displayManager.displayMessage("Door is closed", 0, false);
         }

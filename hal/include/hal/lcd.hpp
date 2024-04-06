@@ -58,7 +58,7 @@ class LCD {
 
   public:
     LCD();
-    ~LCD();
+    void stop(void);
     // Writes data to DDRAM. RS Pin will be set to 1
     void displayToLCD(std::string msg);
     // Clears display, sets DDRAM addr to 0, clears DDRAM values
