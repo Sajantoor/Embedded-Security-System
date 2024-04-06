@@ -213,10 +213,14 @@ void LCD::scrollText(std::string message) {
 }
 
 void LCD::scrollTextThread() {
+    unsigned int msgIndex = 0;
+    bool isFirstLoop = true;
+    bool hasLock = false;
+
     while (!isShutdown) {
-        unsigned int msgIndex = 0;
-        bool isFirstLoop = true;
-        bool hasLock = false;
+        msgIndex = 0;
+        isFirstLoop = true;
+        hasLock = false;
 
         while (isScrolling) {
             if (!hasLock) {
