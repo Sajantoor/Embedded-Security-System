@@ -15,6 +15,7 @@
 #define LCD_LENGTH 16
 #define LCD_WIDTH 2
 #define DDRAM_SIZE 80
+#define SECOND_LINE_ADDRESS 0x40
 
 LCD::LCD() {
     GPIO gpio = GPIO();
@@ -120,7 +121,6 @@ void LCD::clearDisplay() {
     write4bits(0x0);
     write4bits(0x1);
     sleepForNs(64000);
-    msgLen = 0;
 }
 
 void LCD::returnHome() {
@@ -193,20 +193,23 @@ void LCD::writeCharacter(char c) {
 }
 
 void LCD::scrollText(std::string message) {
-    msgIndex = 0;
     isScrolling = true;
-    isFirstLoop = true;
     currentMessage = message;
 }
 
 void LCD::scrollTextThread() {
     while (!isShutdown) {
         bool didScroll = false;
+        unsigned int msgIndex = 0;
+        bool isFirstLoop = true;
+
         while (isScrolling) {
             didScroll = true;
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
-            if (msgIndex > currentMessage.length()) { msgIndex = 0; }
+            if (msgIndex > currentMessage.length()) {
+                msgIndex = 0;
+            }
 
             for (unsigned int i = 0; i < LCD_LENGTH; i++) {
                 unsigned int currIndex =
@@ -231,6 +234,7 @@ void LCD::scrollTextThread() {
 
             clearDisplay();
         }
+
         if (didScroll) {
             didScroll = false;
             isDisplaying = false;
@@ -239,13 +243,21 @@ void LCD::scrollTextThread() {
 }
 
 void LCD::displayNonScrollingText(std::string msg) {
+    int textLength = 0;
+
     for (unsigned int i = 0; i < msg.length(); i++) {
         gpio.setPinValue(LcdGpioPins::RS, 1);
         writeCharacter(msg[i]);
 
-        if (msgLen + i == LCD_LENGTH - 1) { setDdramAddress(0x40); }
+        if (textLength + i == LCD_LENGTH - 1) {
+            // jump addresses once you reach 16 chars displayed because
+            // displayable ram is not contiguous
+            // second line is at 0x40
+            setDdramAddress(SECOND_LINE_ADDRESS);
+        }
     }
-    msgLen += msg.length();
+
+    textLength += msg.length();
     isDisplaying = false;
 }
 
