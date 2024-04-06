@@ -1,6 +1,7 @@
 // Unless specified, each function will set RS Pin to 0
 #pragma once
 #include <atomic>
+#include <mutex>
 #include <string>
 #include <thread>
 #include "hal/gpio.hpp"
@@ -11,7 +12,8 @@ class LCD {
   private:
     GPIO gpio;
     bool isScrolling = false;
-    std::atomic<bool> isDisplaying = false;
+    // Mutex for display functions
+    std::mutex displayMutex = std::mutex();
     std::string currentMessage = "";
     bool isShutdown = false;
     std::thread scrollingThread;
@@ -53,11 +55,14 @@ class LCD {
 
     void writeCharacter(char c);
 
+    // Clears the display and specifies whether the function calling it has a lock or not
+    void clearDisplayWithLock(bool hasLock);
+
   public:
     LCD();
     void stop(void);
     // Writes data to DDRAM. RS Pin will be set to 1
     void displayToLCD(std::string msg);
     // Clears display, sets DDRAM addr to 0, clears DDRAM values
-    void clearDisplay();
+    void clearDisplay(void);
 };

@@ -116,11 +116,29 @@ void LCD::enablePulse() {
     sleepForMs(1);
 }
 
-void LCD::clearDisplay() {
+void LCD::clearDisplayWithLock(bool hasLock) {
+    if (!hasLock) {
+        displayMutex.lock();
+    }
+
+    clearDisplay();
+
+    if (!hasLock) {
+        displayMutex.unlock();
+    }
+}
+
+void LCD::clearDisplay(void) {
+    // must accquire a lock
+    displayMutex.lock();
+
+    isScrolling = false;
     gpio.setPinValue(LcdGpioPins::RS, 0);
     write4bits(0x0);
     write4bits(0x1);
     sleepForNs(64000);
+
+    displayMutex.unlock();
 }
 
 void LCD::returnHome() {
@@ -199,12 +217,11 @@ void LCD::scrollText(std::string message) {
 
 void LCD::scrollTextThread() {
     while (!isShutdown) {
-        bool didScroll = false;
         unsigned int msgIndex = 0;
         bool isFirstLoop = true;
 
         while (isScrolling) {
-            didScroll = true;
+            displayMutex.lock();
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
             if (msgIndex > currentMessage.length()) {
@@ -232,24 +249,20 @@ void LCD::scrollTextThread() {
                 isFirstLoop = false;
             }
 
-            clearDisplay();
-        }
-
-        if (didScroll) {
-            didScroll = false;
-            isDisplaying = false;
+            clearDisplayWithLock(true);
+            displayMutex.unlock();
         }
     }
 }
 
 void LCD::displayNonScrollingText(std::string msg) {
-    int textLength = 0;
+    displayMutex.lock();
 
     for (unsigned int i = 0; i < msg.length(); i++) {
         gpio.setPinValue(LcdGpioPins::RS, 1);
         writeCharacter(msg[i]);
 
-        if (textLength + i == LCD_LENGTH - 1) {
+        if (i == LCD_LENGTH - 1) {
             // jump addresses once you reach 16 chars displayed because
             // displayable ram is not contiguous
             // second line is at 0x40
@@ -257,20 +270,16 @@ void LCD::displayNonScrollingText(std::string msg) {
         }
     }
 
-    textLength += msg.length();
-    isDisplaying = false;
+    displayMutex.unlock();
 }
 
 void LCD::displayToLCD(std::string msg) {
     // stop scrolling if scrolling to prevent overwrites
     isScrolling = false;
-    while (isDisplaying) {}
-    isDisplaying = true;
-    clearDisplay();
+    clearDisplayWithLock(false);
 
     if (msg.length() > DDRAM_SIZE) {
         std::cerr << "message length cannot be greater than 80 chars" << std::endl;
-        isDisplaying = false;
     } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
         scrollText(msg);
     } else {
