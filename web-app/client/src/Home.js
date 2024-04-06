@@ -51,6 +51,7 @@ export default function Home() {
   }, []);
 
   function drawCanvas(data) {
+    setCameraStatus("online");
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     const image = new window.Image();
