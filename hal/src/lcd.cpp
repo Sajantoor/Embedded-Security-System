@@ -216,9 +216,11 @@ void LCD::scrollTextThread() {
     while (!isShutdown) {
         unsigned int msgIndex = 0;
         bool isFirstLoop = true;
+        bool hasLock = false;
 
         while (isScrolling) {
             displayMutex.lock();
+            hasLock = true;
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
             if (msgIndex > currentMessage.length()) {
@@ -247,7 +249,11 @@ void LCD::scrollTextThread() {
             }
 
             clearDisplayWithoutLock(false);
+        }
+
+        if (hasLock) {
             displayMutex.unlock();
+            hasLock = false;
         }
     }
 }
