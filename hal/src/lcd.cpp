@@ -132,7 +132,6 @@ void LCD::clearDisplay(void) {
     // must accquire a lock
     displayMutex.lock();
 
-    isScrolling = false;
     gpio.setPinValue(LcdGpioPins::RS, 0);
     write4bits(0x0);
     write4bits(0x1);
