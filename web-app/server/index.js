@@ -29,7 +29,6 @@ webSocketServer.on("connection", (socket) => {
     } else if(ffmpegProcess && !ffmpegProcess.killed){
         console.log("Process not killed")
         ffmpegProcess.kill();
-        // startFFMpegProcess();
     }
 
     udpServer.on("message", (msg) => {

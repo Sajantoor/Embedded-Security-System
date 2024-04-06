@@ -12,40 +12,60 @@
 static constexpr const int BUFFER_SIZE = 1024;
 static constexpr const int PORT = 12345;
 
+static const std::string IP_ADDRESS_STREAMING = "192.168.7.1";
+static constexpr int PORT_STREAMING = 1234;
+
 /**
  * Represents a message that is sent or recieved from the UDP socket.
  * Contains the message, the ip address of the sender and the port of the
  * sender.
  */
-class UdpMessage {
-   public:
-    UdpMessage(std::string message, std::string ip, unsigned int port) {
-        this->message = message;
+class Udp{
+protected:
+    std::string ip;
+    unsigned int port;
+
+public: 
+    Udp(std::string ip, unsigned int port){
         this->ip = ip;
         this->port = port;
     }
+    std::string getIp(void) { return ip; }
+    unsigned int getPort(void) { return port; }
 
-    UdpMessage(const void* data, unsigned int size, std::string ip, unsigned int port) {
-        this->data = data; 
-        this->size = size; 
-        this->ip = ip;
-        this->port = port;
+};
+
+class UdpMessage : public Udp {
+   public:
+    UdpMessage(std::string message, std::string ip, unsigned int port) 
+        : Udp(ip, port) {
+
+        this->message = message;
     }
 
     std::string getMessage(void) { return message; }
-    std::string getIp(void) { return ip; }
-    unsigned int getPort(void) { return port; }
     void setMessage(std::string message) { this->message = message; }
+
+private:
+    std::string message;
+};
+
+class UdpStream : public Udp{
+public: 
+    UdpStream(const void* data, unsigned int size, std::string ip, unsigned int port) 
+        : Udp(ip, port) {
+        this->data = data; 
+        this->size = size; 
+    }
     const void* getData(void) {return data;}
     unsigned int getSize(void) { return size; }
-
-   private:
-    std::string message;
-    std::string ip;
+private:
     const void* data; 
     unsigned int size;
-    unsigned int port;
 };
+
+
+    
 
 /*
  Handles the UDP socket implementation
@@ -66,7 +86,7 @@ class Socket {
      * Sends a message
      */
     void send(UdpMessage* message);
-    void sendData(UdpMessage* message);
+    void sendData(UdpStream* streamData);
     /**
      * Returns true if the socket is currently recieving messages.
      */
