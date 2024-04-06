@@ -20,58 +20,50 @@ static constexpr int PORT_STREAMING = 1234;
  * Contains the message, the ip address of the sender and the port of the
  * sender.
  */
-class Udp{
-protected:
+class Udp {
+  protected:
     std::string ip;
     unsigned int port;
 
-public: 
-    Udp(std::string ip, unsigned int port){
+  public:
+    Udp(std::string ip, unsigned int port) {
         this->ip = ip;
         this->port = port;
     }
     std::string getIp(void) { return ip; }
     unsigned int getPort(void) { return port; }
-
 };
 
 class UdpMessage : public Udp {
-   public:
-    UdpMessage(std::string message, std::string ip, unsigned int port) 
-        : Udp(ip, port) {
-
-        this->message = message;
-    }
+  public:
+    UdpMessage(std::string message, std::string ip, unsigned int port) : Udp(ip, port) { this->message = message; }
 
     std::string getMessage(void) { return message; }
     void setMessage(std::string message) { this->message = message; }
 
-private:
+  private:
     std::string message;
 };
 
-class UdpStream : public Udp{
-public: 
-    UdpStream(const void* data, unsigned int size, std::string ip, unsigned int port) 
-        : Udp(ip, port) {
-        this->data = data; 
-        this->size = size; 
+class UdpStream : public Udp {
+  public:
+    UdpStream(const void* data, unsigned int size, std::string ip, unsigned int port) : Udp(ip, port) {
+        this->data = data;
+        this->size = size;
     }
-    const void* getData(void) {return data;}
+    const void* getData(void) { return data; }
     unsigned int getSize(void) { return size; }
-private:
-    const void* data; 
+
+  private:
+    const void* data;
     unsigned int size;
 };
-
-
-    
 
 /*
  Handles the UDP socket implementation
 */
 class Socket {
-   public:
+  public:
     Socket(void);
     /**
      * CLoses the socket and stops the recieving thread.
@@ -96,14 +88,14 @@ class Socket {
      */
     void stopRecieving(void);
 
-        /**
+    /**
      * Sends a message to the web server
     */
     void sendToWebServer(std::string message);
 
-    void sendDataToWebServer(const void *data, unsigned int size);
+    void sendDataToWebServer(const void* data, unsigned int size);
 
-private:
+  private:
     int socketFd;
     bool isRecieving;
     static Socket* instance;

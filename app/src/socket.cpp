@@ -81,8 +81,8 @@ void Socket::sendData(UdpStream* streamData) {
     inet_pton(AF_INET, streamData->getIp().c_str(), &serverAddress.sin_addr);
 
     // Send a message to the server
-    int bytesSent = sendto(this->socketFd, streamData->getData(), streamData->getSize(), 0, (struct sockaddr*)&serverAddress,
-                           sizeof(serverAddress));
+    int bytesSent = sendto(this->socketFd, streamData->getData(), streamData->getSize(), 0,
+                           (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
     if (bytesSent == -1) {
         std::cerr << "Failed to send message" << std::endl;
