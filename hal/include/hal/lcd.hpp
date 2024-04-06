@@ -54,6 +54,8 @@ class LCD {
     // Initializes LCD into 4 bit mode
     void initLCD();
 
+    void writeCharacter(char c);
+
   public:
     LCD();
     ~LCD();

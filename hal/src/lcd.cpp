@@ -188,6 +188,12 @@ void LCD::setDdramAddress(uint8_t addr) {
     sleepForNs(64000);
 }
 
+void LCD::writeCharacter(char c) {
+    write4bits(c >> 4);
+    write4bits(c & 0xF);
+    sleepForNs(64000);
+}
+
 void LCD::scrollText(std::string message) {
     msgIndex = 0;
     isScrolling = true;
@@ -211,18 +217,13 @@ void LCD::scrollTextThread() {
 
                 if (currIndex == 0 && !isFirstLoop) {
                     for (int j = 0; j < 5; j++) {
-                        write4bits(' ' >> 4);
-                        write4bits(' ' & 0xF);
-                        sleepForNs(64000);
+                        writeCharacter(' ');
                     }
                 }
 
-                write4bits(currentMessage[currIndex] >> 4);
-                write4bits(currentMessage[currIndex] & 0xF);
-                sleepForNs(64000);
+                writeCharacter(currentMessage[currIndex]);
             }
 
-            msgLen += currentMessage.length();
             msgIndex++;
             sleepForMs(300);
 
@@ -242,16 +243,13 @@ void LCD::scrollTextThread() {
 
 void LCD::displayNonScrollingText(std::string msg) {
     std::cout << "Displaying non scrolling text" << std::endl;
-    gpio.setPinValue(LcdGpioPins::RS, 1);
     for (unsigned int i = 0; i < msg.length(); i++) {
-        write4bits(msg[i] >> 4);
-        write4bits(msg[i] & 0xF);
+        gpio.setPinValue(LcdGpioPins::RS, 1);
+        writeCharacter(msg[i]);
 
         if (msgLen + i == LCD_LENGTH - 1) {
             setDdramAddress(0x40);
-            gpio.setPinValue(LcdGpioPins::RS, 1);
         }
-        sleepForNs(64000);
     }
     msgLen += msg.length();
     isDisplaying = false;
