@@ -56,7 +56,7 @@ class LCD {
     void writeCharacter(char c);
 
     // Clears the display and specifies whether the function calling it has a lock or not
-    void clearDisplayWithLock(bool hasLock);
+    void clearDisplayWithoutLock(bool stopScroll);
 
   public:
     LCD();
@@ -64,5 +64,5 @@ class LCD {
     // Writes data to DDRAM. RS Pin will be set to 1
     void displayToLCD(std::string msg);
     // Clears display, sets DDRAM addr to 0, clears DDRAM values
-    void clearDisplay(void);
+    void clearDisplay(bool stopScroll = true);
 };

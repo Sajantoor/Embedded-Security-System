@@ -116,27 +116,25 @@ void LCD::enablePulse() {
     sleepForMs(1);
 }
 
-void LCD::clearDisplayWithLock(bool hasLock) {
-    if (!hasLock) {
-        displayMutex.lock();
+void LCD::clearDisplayWithoutLock(bool stopScroll) {
+    if (stopScroll) {
+        isScrolling = false;
     }
-
-    clearDisplay();
-
-    if (!hasLock) {
-        displayMutex.unlock();
-    }
-}
-
-void LCD::clearDisplay(void) {
-    // must accquire a lock
-    displayMutex.lock();
 
     gpio.setPinValue(LcdGpioPins::RS, 0);
     write4bits(0x0);
     write4bits(0x1);
     sleepForNs(64000);
+}
 
+void LCD::clearDisplay(bool stopScroll) {
+    if (stopScroll) {
+        isScrolling = false;
+    }
+
+    // must accquire a lock
+    displayMutex.lock();
+    clearDisplayWithoutLock(false);
     displayMutex.unlock();
 }
 
@@ -248,7 +246,7 @@ void LCD::scrollTextThread() {
                 isFirstLoop = false;
             }
 
-            clearDisplayWithLock(true);
+            clearDisplayWithoutLock(false);
             displayMutex.unlock();
         }
     }
@@ -273,9 +271,8 @@ void LCD::displayNonScrollingText(std::string msg) {
 }
 
 void LCD::displayToLCD(std::string msg) {
-    // stop scrolling if scrolling to prevent overwrites
-    isScrolling = false;
-    clearDisplayWithLock(false);
+    // clear display and stop scrolling
+    clearDisplay();
 
     if (msg.length() > DDRAM_SIZE) {
         std::cerr << "message length cannot be greater than 80 chars" << std::endl;
