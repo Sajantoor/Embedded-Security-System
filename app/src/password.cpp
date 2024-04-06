@@ -52,12 +52,14 @@ void Password::writePasswordToFile(const std::string& encryptedPassword) {
 // only need to read from file during initialization
 std::string Password::readPasswordFromFile() {
     std::ifstream file(filePath);
-    std::string encryptedPassword;
+    std::string encryptedPassword = "";
 
     if (file.is_open()) {
         std::getline(file, encryptedPassword);
         file.close();
     }
+
+    if (!encryptedPassword.empty()) isPasswordSet = true;
 
     return encryptedPassword;
 }

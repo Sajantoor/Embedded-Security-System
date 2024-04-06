@@ -6,8 +6,10 @@
 DisplayManager::DisplayManager(LCD& lcd, Keypad& keypad) : lcd(lcd), keypad(keypad) {}
 
 void DisplayManager::displayMessage(std::string message, unsigned int timeoutInMs, bool requireKeypadInput) {
-    lcd.clearDisplay();
+    if (message == prevMsg) { return; }
+
     lcd.displayToLCD(message);
+    prevMsg = message;
 
     if (timeoutInMs > 0) {
         std::thread([this, timeoutInMs] {
@@ -21,12 +23,10 @@ void DisplayManager::displayMessage(std::string message, unsigned int timeoutInM
         while (true) {
             std::string input = keypad.getInput();
             if (input != prevInput) {
-                lcd.clearDisplay();
                 lcd.displayToLCD(input);
                 prevInput = input;
             } else if (keypad.isInputComplete()) {
                 std::string completeInput = keypad.getInput();
-                lcd.clearDisplay();
                 lcd.displayToLCD(completeInput);
                 break;
             }

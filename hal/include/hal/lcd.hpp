@@ -1,5 +1,9 @@
 // Unless specified, each function will set RS Pin to 0
 #pragma once
+#include <atomic>
+#include <mutex>
+#include <string>
+#include <thread>
 #include "hal/gpio.hpp"
 
 enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
@@ -7,7 +11,13 @@ enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
 class LCD {
   private:
     GPIO gpio;
-    int msgLen;
+    bool isScrolling = false;
+    // Mutex for display functions
+    std::mutex displayMutex = std::mutex();
+    std::string currentMessage = "";
+    bool isShutdown = false;
+    std::thread scrollingThread;
+
     void write8bits(uint8_t value);
     void write4bits(uint8_t value);
     void enablePulse();
@@ -33,13 +43,26 @@ class LCD {
     void setCgramAddress(uint8_t addr);
     // Set DDRAM (Display Data RAM) address
     void setDdramAddress(uint8_t addr);
+
+    // Scrolls text on the LCD
+    void scrollText(std::string msg);
+    // Function for scroll text thread, should not be called outside of constructor
+    void scrollTextThread(void);
+    // Displays non scrolling text
+    void displayNonScrollingText(std::string msg);
     // Initializes LCD into 4 bit mode
     void initLCD();
 
+    void writeCharacter(char c);
+
+    // Clears the display and specifies whether the function calling it has a lock or not
+    void clearDisplayWithoutLock(bool stopScroll);
+
   public:
     LCD();
+    void stop(void);
     // Writes data to DDRAM. RS Pin will be set to 1
     void displayToLCD(std::string msg);
     // Clears display, sets DDRAM addr to 0, clears DDRAM values
-    void clearDisplay();
+    void clearDisplay(bool stopScroll = true);
 };
