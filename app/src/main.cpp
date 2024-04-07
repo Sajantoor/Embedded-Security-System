@@ -25,7 +25,7 @@ int main(void) {
     Password password;
     Socket socket;
     Notifier notifier(&socket);
-    MessageHandler messageHandler(&socket, &relay, &password, &displayManager);
+    MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &notifier);
 
     // Close the relay at the start of the program
     relay.close();
@@ -102,6 +102,7 @@ int main(void) {
                 notifier.notify(PASSWORD_CHANGED);
             } else {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
+                notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
             }
 
             sleepForMs(1000);

@@ -1,3 +1,6 @@
+#ifndef __NOTIFIER_HPP_
+#define __NOTIFIER_HPP_
+
 #include <ctime>
 #include <string>
 
@@ -9,7 +12,10 @@ typedef enum {
     FAILED_PASSWORD,
     MOTION_DETECTED,
     PASSWORD_CHANGED,
-    PASSWORD_SET
+    PASSWORD_SET,
+    PASSWORD_CHANGE_FAILED,
+    DISPLAY_MESSAGE_SET,
+    DISPLAY_MESSAGE_FAILED
 } NotificationType;
 
 class Notifier {
@@ -29,3 +35,5 @@ class Notifier {
   private:
     Socket* socket = nullptr;
 };
+
+#endif

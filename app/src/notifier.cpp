@@ -13,23 +13,32 @@ void Notifier::notify(NotificationType type, std::string message) {
     std::string timestamp = getCurrentTimestamp();
 
     switch (type) {
-        case NotificationType::DOOR_OPEN:
+        case DOOR_OPEN:
             socket->sendToWebServer("doorOpen " + timestamp);
             break;
-        case NotificationType::DOOR_CLOSED:
+        case DOOR_CLOSED:
             socket->sendToWebServer("doorClosed " + timestamp);
             break;
-        case NotificationType::FAILED_PASSWORD:
+        case FAILED_PASSWORD:
             socket->sendToWebServer("failedPassword " + timestamp + " " + message);
             break;
-        case NotificationType::MOTION_DETECTED:
+        case MOTION_DETECTED:
             socket->sendToWebServer("motionDetected " + timestamp);
             break;
-        case NotificationType::PASSWORD_CHANGED:
+        case PASSWORD_CHANGED:
             socket->sendToWebServer("passwordChanged " + timestamp);
             break;
-        case NotificationType::PASSWORD_SET:
+        case PASSWORD_SET:
             socket->sendToWebServer("passwordSet " + timestamp);
+            break;
+        case PASSWORD_CHANGE_FAILED:
+            socket->sendToWebServer("passwordChangeFailed " + timestamp);
+            break;
+        case DISPLAY_MESSAGE_SET:
+            socket->sendToWebServer("displayMessageSet " + timestamp);
+            break;
+        case DISPLAY_MESSAGE_FAILED:
+            socket->sendToWebServer("displayMessageFailed " + timestamp + " " + message);
             break;
         default:
             break;

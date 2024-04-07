@@ -21,7 +21,7 @@ void MessageHandler::handleUnlock(void) {
 
 void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     if (arguments.size() != 2) {
-        socket->sendToWebServer("Invalid number of arguments\n");
+        notifier->notify(FAILED_PASSWORD, "Invalid number of arguments");
         return;
     }
 
@@ -29,16 +29,15 @@ void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     const std::string newPassword = arguments[1];
 
     if (password->changePassword(currentPassword, newPassword)) {
-        socket->sendToWebServer("Password changed successfully\n");
         notifier->notify(PASSWORD_CHANGED);
     } else {
-        socket->sendToWebServer("Invalid current password\n");
+        notifier->notify(FAILED_PASSWORD, "Incorrect password");
     }
 }
 
 void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments) {
     if (arguments.size() < 1) {
-        socket->sendToWebServer("Invalid number of arguments\n");
+        notifier->notify(DISPLAY_MESSAGE_FAILED, "Invalid number of arguments");
         return;
     }
 
@@ -51,6 +50,7 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
     }
 
     displayManager->displayMessage(message, timeout);
+    notifier->notify(DISPLAY_MESSAGE_SET);
 }
 
 void MessageHandler::handleShutdown(void) {
