@@ -4,24 +4,27 @@ Notifier::Notifier(Socket* socket) {
     this->socket = socket;
 }
 
-time_t Notifier::getCurrentTimestamp() {
-    std::time_t result = std::time(nullptr);
-    return result;
+std::string Notifier::getCurrentTimestamp(void) {
+    std::time_t timestamp = std::time(nullptr);
+    std::string timestampString = std::to_string(timestamp);
+    return timestampString;
 }
 
 void Notifier::notify(NotificationType type, std::string message) {
-    std::time_t timestamp = getCurrentTimestamp();
-    std::string timestampString = std::to_string(timestamp);
+    std::string timestamp = getCurrentTimestamp();
 
     switch (type) {
         case NotificationType::DOOR_STATUS:
-            socket->sendToWebServer("doorStatus " + timestampString + " " + message);
+            socket->sendToWebServer("doorStatus " + timestamp + " " + message);
             break;
         case NotificationType::FAILED_PASSWORD:
-            socket->sendToWebServer("failedPassword " + timestampString + " " + message);
+            socket->sendToWebServer("failedPassword " + timestamp + " " + message);
             break;
         case NotificationType::MOTION_DETECTED:
-            socket->sendToWebServer("motionDetected " + timestampString);
+            socket->sendToWebServer("motionDetected " + timestamp);
+            break;
+        case NotificationType::PASSWORD_CHANGED:
+            socket->sendToWebServer("passwordChanged " + timestamp + " " + message);
             break;
         default:
             break;
