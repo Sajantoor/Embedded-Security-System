@@ -34,7 +34,7 @@ int main(void) {
     if (!password.doesPasswordExist()) {
         displayManager.displayMessage("Please enter a password", 0, true);
         password.savePassword(keypad.getInput());
-        notifier.notify(PASSWORD_CHANGED, "Password set");
+        notifier.notify(PASSWORD_SET);
         sleepForMs(1000);
     }
 
@@ -57,7 +57,7 @@ int main(void) {
             if (password.isPasswordCorrect(input)) {
                 displayManager.displayMessage("Password correct", 0, false);
                 relay.open();
-                notifier.notify(DOOR_STATUS, "Door opened");
+                notifier.notify(DOOR_OPEN);
                 failedPasswordAttempts = 0;
             } else {
                 displayManager.displayMessage("Password incorrect", 0, false);
@@ -86,7 +86,7 @@ int main(void) {
         // Ideally we change this to joystick pressed or button is pressed but yeah.
         if (joystick.getDirection() == DOWN && relay.isOpen()) {
             relay.close();
-            notifier.notify(DOOR_STATUS, "Door closed");
+            notifier.notify(DOOR_CLOSED);
         }
 
         // This is temporary for testing, password change
@@ -99,7 +99,7 @@ int main(void) {
 
             if (password.changePassword(oldPassword, newPassword)) {
                 displayManager.displayMessage("Password changed", 0, false);
-                notifier.notify(PASSWORD_CHANGED, "Password changed");
+                notifier.notify(PASSWORD_CHANGED);
             } else {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
             }
