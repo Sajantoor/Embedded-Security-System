@@ -1,9 +1,13 @@
 #include "messageHandler.hpp"
+#include <iostream>
 
-MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager, ShutdownHandler* shutdownHandler)
-    : socket(socket), relay(relay), password(password), displayManager(displayManager), shutdownHandler(shutdownHandler) {}
-
-void MessageHandler::init(void) {
+MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
+                               ShutdownHandler* shutdownHandler)
+    : socket(socket),
+      relay(relay),
+      password(password),
+      displayManager(displayManager),
+      shutdownHandler(shutdownHandler) {
     isRunning = true;
     handleUDPMessages();
 }

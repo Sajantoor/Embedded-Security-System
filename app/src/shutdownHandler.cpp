@@ -10,9 +10,9 @@ void ShutdownHandler::shutdown(void) {
     keypad->stop();
 }
 
-void ShutdownHandler::setIsRunning(bool newIsRunning) {
-    isRunning = newIsRunning;
+void ShutdownHandler::setIsRunning(bool newRunning) {
+    running = newRunning;
 }
-bool ShutdownHandler::getIsRunning(void) {
-    return isRunning;
+bool ShutdownHandler::isRunning(void) {
+    return running;
 }

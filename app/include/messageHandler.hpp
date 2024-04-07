@@ -20,8 +20,7 @@ class MessageHandler {
      * down once it receives a stop message from the UDP socket.
      */
     MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager, ShutdownHandler* ShutdownHandler);
-    void init(void);
-
+    
     /**
      * Stops the message handler.
      */

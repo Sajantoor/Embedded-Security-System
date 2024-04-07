@@ -7,11 +7,11 @@ class ShutdownHandler {
   private:
     LCD* lcd;
     Keypad* keypad;
-    bool isRunning = true;
+    bool running = true;
 
   public:
     ShutdownHandler(LCD* lcd, Keypad* keypad);
     void shutdown(void);
     void setIsRunning(bool newIsRunning);
-    bool getIsRunning(void);
+    bool isRunning(void);
 };

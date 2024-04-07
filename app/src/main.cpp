@@ -36,8 +36,7 @@ int main(void) {
         sleepForMs(1000);
     }
 
-    messageHandler.init();
-    while (shutdownHandler.getIsRunning()) {
+    while (shutdownHandler.isRunning()) {
         if (relay.isOpen()) {
             displayManager.displayMessage("Door is open", 0, false);
         } else {
