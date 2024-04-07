@@ -12,6 +12,7 @@
 #include "messageHandler.hpp"
 #include "password.hpp"
 #include "socket.hpp"
+#include "shutdownHandler.hpp"
 
 int main(void) {
     // Init hardware
@@ -22,7 +23,8 @@ int main(void) {
     DisplayManager displayManager(lcd, keypad);
     Password password;
     Socket socket;
-    MessageHandler messageHandler(&socket, &relay, &password, &displayManager);
+    ShutdownHandler shutdownHandler(&lcd, &keypad);
+    MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler);
 
     // Close the relay at the start of the program
     relay.close();
@@ -34,10 +36,8 @@ int main(void) {
         sleepForMs(1000);
     }
 
-    // TODO: use shutdown module for this instead
-    bool isStopped = false;
-
-    while (!isStopped) {
+    messageHandler.init();
+    while (shutdownHandler.getIsRunning()) {
         if (relay.isOpen()) {
             displayManager.displayMessage("Door is open", 0, false);
         } else {
@@ -80,10 +80,12 @@ int main(void) {
             } else {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
             }
-
+ 
             sleepForMs(1000);
         }
     }
+    messageHandler.stop();
+    shutdownHandler.shutdown();
 
     return 0;
 }
