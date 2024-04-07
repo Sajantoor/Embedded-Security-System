@@ -1,9 +1,7 @@
 #include "notifier.hpp"
 #include <optional>
 
-Notifier::Notifier(Socket* socket) {
-    this->socket = socket;
-}
+Notifier::Notifier(Socket* socket) : socket(socket) {}
 
 std::string Notifier::getCurrentTimestamp(void) {
     std::time_t timestamp = std::time(nullptr);
