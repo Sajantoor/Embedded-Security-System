@@ -4,6 +4,7 @@
 #include <vector>
 #include "displayManager.hpp"
 #include "hal/relay.hpp"
+#include "notifier.hpp"
 #include "password.hpp"
 #include "socket.hpp"
 
@@ -18,7 +19,8 @@ class MessageHandler {
      * Starts the message handler on a new thread. This function will only shut
      * down once it receives a stop message from the UDP socket.
      */
-    MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager);
+    MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
+                   Notifier* notifier);
     void init(void);
 
     /**
@@ -31,6 +33,7 @@ class MessageHandler {
     Relay* relay;
     Password* password;
     DisplayManager* displayManager;
+    Notifier* notifier;
     std::thread messageHandlerThread;
     bool isRunning;
 
