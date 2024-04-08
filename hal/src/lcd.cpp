@@ -210,16 +210,17 @@ void LCD::writeCharacter(char c) {
 void LCD::scrollText(std::string message) {
     isScrolling = true;
     currentMessage = message;
+    // Insert 5 spaces into message at index 0 so that when message loops around there is space between the start and the end
+    currentMessage.insert(0, "     ");
 }
 
 void LCD::scrollTextThread() {
     unsigned int msgIndex = 0;
-    bool isFirstLoop = true;
+    unsigned int currIndex = 0;
     bool hasLock = false;
 
     while (!isShutdown) {
         msgIndex = 0;
-        isFirstLoop = true;
         hasLock = false;
 
         while (isScrolling) {
@@ -230,31 +231,16 @@ void LCD::scrollTextThread() {
 
             gpio.setPinValue(LcdGpioPins::RS, 1);
 
-            if (msgIndex > currentMessage.length()) {
-                msgIndex = 0;
-            }
-
             for (unsigned int i = 0; i < LCD_LENGTH; i++) {
-                unsigned int currIndex =
-                    msgIndex + i < currentMessage.length() ? msgIndex + i : (msgIndex + i) % currentMessage.length();
-
-                if (currIndex == 0 && !isFirstLoop) {
-                    for (int j = 0; j < 5; j++) {
-                        writeCharacter(' ');
-                    }
+                currIndex = msgIndex + i;
+                if (currIndex >= currentMessage.length()) {
+                    currIndex = currIndex % currentMessage.length();
                 }
-
                 writeCharacter(currentMessage[currIndex]);
             }
 
-            msgIndex++;
-            sleepForMs(300);
-
-            if (isFirstLoop && isScrolling) {
-                sleepForMs(1500);
-                isFirstLoop = false;
-            }
-
+            msgIndex = (msgIndex >= currentMessage.length()) ? 0 : msgIndex + 1;
+            sleepForMs(400);
             clearDisplayWithoutLock(false);
         }
 
@@ -287,9 +273,7 @@ void LCD::displayToLCD(std::string msg) {
     // clear display and stop scrolling
     clearDisplay();
 
-    if (msg.length() > DDRAM_SIZE) {
-        std::cerr << "message length cannot be greater than 80 chars" << std::endl;
-    } else if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
+    if (msg.length() > LCD_LENGTH * LCD_WIDTH) {
         scrollText(msg);
     } else {
         displayNonScrollingText(msg);
