@@ -243,7 +243,7 @@ void LCD::scrollTextThread() {
                 writeCharacter(currentMessage[currIndex]);
             }
 
-            msgIndex = (msgIndex >= currentMessage.length()) ? 0 : msgIndex + 1;
+            msgIndex = (msgIndex >= currentMessage.length() - 1) ? 0 : msgIndex + 1;
             sleepForMs(400);
             clearDisplayWithoutLock(false);
         }
