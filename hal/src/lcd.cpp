@@ -75,6 +75,7 @@ void LCD::stop(void) {
     isScrolling = false;
     scrollingThread.join();
     clearDisplay();
+    displayControl(0, 0, 0); // Display off, cursor off, blinking off
 }
 
 void LCD::initLCD() {

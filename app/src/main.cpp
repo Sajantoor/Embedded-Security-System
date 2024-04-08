@@ -23,7 +23,7 @@ int main(void) {
     DisplayManager displayManager(lcd, keypad);
     Password password;
     Socket socket;
-    ShutdownHandler shutdownHandler(&lcd, &keypad);
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler);
 
     // Close the relay at the start of the program
@@ -36,7 +36,7 @@ int main(void) {
         sleepForMs(1000);
     }
 
-    while (shutdownHandler.isRunning()) {
+    while (!shutdownHandler.isShutdown()) {
         if (relay.isOpen()) {
             displayManager.displayMessage("Door is open", 0, false);
         } else {
@@ -84,7 +84,6 @@ int main(void) {
         }
     }
     messageHandler.stop();
-    shutdownHandler.shutdown();
 
     return 0;
 }

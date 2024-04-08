@@ -1,5 +1,4 @@
 #include "messageHandler.hpp"
-#include <iostream>
 
 MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
                                ShutdownHandler* shutdownHandler)
@@ -54,7 +53,8 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
 }
 
 void MessageHandler::handleShutdown(void) {
-    shutdownHandler->setIsRunning(false);
+    isRunning = false;
+    shutdownHandler->shutdown();
 }
 
 void MessageHandler::handleUDPMessages(void) {
@@ -104,6 +104,5 @@ void MessageHandler::handleUDPMessages(void) {
 }
 
 void MessageHandler::stop(void) {
-    isRunning = false;
     messageHandlerThread.join();
 }

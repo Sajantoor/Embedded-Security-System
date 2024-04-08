@@ -1,18 +1,17 @@
 #include "shutdownHandler.hpp"
 #include "common/utils.hpp"
 
-ShutdownHandler::ShutdownHandler(LCD* lcd, Keypad* keypad)
-    : lcd(lcd), keypad(keypad) {
+ShutdownHandler::ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager)
+    : lcd(lcd), keypad(keypad), displayManager(displayManager)  {
 }
 
 void ShutdownHandler::shutdown(void) {
     lcd->stop();
     keypad->stop();
+    displayManager->stop();
+    isRunning = false;
 }
 
-void ShutdownHandler::setIsRunning(bool newRunning) {
-    running = newRunning;
-}
-bool ShutdownHandler::isRunning(void) {
-    return running;
+bool ShutdownHandler::isShutdown(void) {
+    return !isRunning;
 }
