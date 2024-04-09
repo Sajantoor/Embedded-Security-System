@@ -20,6 +20,7 @@ class LCD {
 
     void write8bits(uint8_t value);
     void write4bits(uint8_t value);
+    // Pulse lets LCD know that first 4 bits have been written, and that the new 4 bits will be written next (only needed in 4bit mode)
     void enablePulse();
 
     // Set DDRAM addr to 0, shifts display to original position
@@ -52,9 +53,10 @@ class LCD {
     void displayNonScrollingText(std::string msg);
     // Initializes LCD into 4 bit mode
     void initLCD();
-
+    // export and config gpio pins
+    void initGpioForLCD();
+    // Writes character to DDRAM
     void writeCharacter(char c);
-
     // Clears the display and specifies whether the function calling it has a lock or not
     void clearDisplayWithoutLock(bool stopScroll);
 

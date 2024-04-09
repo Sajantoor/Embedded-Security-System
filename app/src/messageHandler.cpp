@@ -1,27 +1,31 @@
 #include "messageHandler.hpp"
 
 MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
-                               ShutdownHandler* shutdownHandler)
+                               ShutdownHandler* shutdownHandler, Notifier* notifier)
     : socket(socket),
       relay(relay),
       password(password),
       displayManager(displayManager),
-      shutdownHandler(shutdownHandler) {
+      shutdownHandler(shutdownHandler),
+      notifier(notifier) {
+
     isRunning = true;
     handleUDPMessages();
 }
 
 void MessageHandler::handleLock(void) {
+    notifier->notify(DOOR_CLOSED);
     relay->close();
 }
 
 void MessageHandler::handleUnlock(void) {
+    notifier->notify(DOOR_OPEN);
     relay->open();
 }
 
 void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     if (arguments.size() != 2) {
-        socket->sendToWebServer("Invalid number of arguments\n");
+        notifier->notify(FAILED_PASSWORD, "Invalid number of arguments");
         return;
     }
 
@@ -29,15 +33,15 @@ void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     const std::string newPassword = arguments[1];
 
     if (password->changePassword(currentPassword, newPassword)) {
-        socket->sendToWebServer("Password changed successfully\n");
+        notifier->notify(PASSWORD_CHANGED);
     } else {
-        socket->sendToWebServer("Invalid current password\n");
+        notifier->notify(FAILED_PASSWORD, "Incorrect password");
     }
 }
 
 void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments) {
     if (arguments.size() < 1) {
-        socket->sendToWebServer("Invalid number of arguments\n");
+        notifier->notify(DISPLAY_MESSAGE_FAILED, "Invalid number of arguments");
         return;
     }
 
@@ -50,6 +54,7 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
     }
 
     displayManager->displayMessage(message, timeout);
+    notifier->notify(DISPLAY_MESSAGE_SET);
 }
 
 void MessageHandler::handleShutdown(void) {
