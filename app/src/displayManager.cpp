@@ -20,7 +20,7 @@ void DisplayManager::displayMessage(std::string message, unsigned int timeoutInM
         keypad.startInput();
         std::string prevInput = "";
 
-        while (true) {
+        while (isRunning) {
             std::string input = keypad.getInput();
             if (input != prevInput) {
                 lcd.displayToLCD(input);
@@ -32,4 +32,8 @@ void DisplayManager::displayMessage(std::string message, unsigned int timeoutInM
             }
         }
     }
+}
+
+void DisplayManager::stop() {
+    isRunning = false;
 }

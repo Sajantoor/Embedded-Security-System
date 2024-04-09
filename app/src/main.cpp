@@ -14,6 +14,7 @@
 #include "notifier.hpp"
 #include "password.hpp"
 #include "socket.hpp"
+#include "shutdownHandler.hpp"
 
 int main(void) {
     // Init hardware
@@ -24,8 +25,9 @@ int main(void) {
     DisplayManager displayManager(lcd, keypad);
     Password password;
     Socket socket;
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
     Notifier notifier(&socket);
-    MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &notifier);
+    MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
 
     // Close the relay at the start of the program
     relay.close();
@@ -38,11 +40,8 @@ int main(void) {
         sleepForMs(1000);
     }
 
-    // TODO: use shutdown module for this instead
-    bool isStopped = false;
     int failedPasswordAttempts = 0;
-
-    while (!isStopped) {
+    while (!shutdownHandler.isShutdown()) {
         if (relay.isOpen()) {
             displayManager.displayMessage("Door is open", 0, false);
         } else {
@@ -104,10 +103,11 @@ int main(void) {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
                 notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
             }
-
+ 
             sleepForMs(1000);
         }
     }
+    messageHandler.stop();
 
     return 0;
 }
