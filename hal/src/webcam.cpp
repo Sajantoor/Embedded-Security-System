@@ -534,6 +534,7 @@ static void open_device(void) {
 
     if (-1 == stat(dev_name, &st)) {
         fprintf(stderr, "Cannot identify '%s': %d, %s\n", dev_name, errno, strerror(errno));
+        printf("Check if device is plugged in\n");
         exit(EXIT_FAILURE);
     }
 
