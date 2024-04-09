@@ -12,7 +12,7 @@
 static constexpr const int BUFFER_SIZE = 1024;
 static constexpr const int PORT = 12345;
 
-static const std::string IP_ADDRESS_STREAMING = "192.168.7.1";
+static const std::string IP_ADDRESS_STREAMING = "192.168.6.1";
 static constexpr int PORT_STREAMING = 1234;
 
 /**

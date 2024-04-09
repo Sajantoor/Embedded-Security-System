@@ -7,8 +7,8 @@
 #include "hal/lcd.hpp"
 #include "hal/led.hpp"
 #include "hal/relay.hpp"
-#include "password.hpp"
 #include "hal/webcam.hpp"
+#include "password.hpp"
 
 void testRelay();
 void testDisplayWithKeypad(LCD& lcd, Keypad& keypad);
@@ -68,6 +68,6 @@ void testLCD() {
     lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
 }
 
-void testWebcam(){
+void testWebcam() {
     startStream();
 }

@@ -72,8 +72,8 @@ static const char* dev_name = "/dev/video0";
 static enum io_method io = IO_METHOD_MMAP;
 static int fd = -1;
 struct buffer* buffers;
-static unsigned int n_buffers;
-static int out_buf;
+static unsigned int n_buffers = 0;
+static int out_buf = 0;
 static int force_format = 0;
 static long frame_count = 100;
 
@@ -98,7 +98,7 @@ static void process_image(const void* p, int size) {
         sendResponseT(p, size);
     }
 
-    fflush(stderr);
+    // fflush(stderr);
 }
 
 static int read_frame(void) {
@@ -189,13 +189,13 @@ static int read_frame(void) {
 }
 
 static void mainloop(void) {
-    unsigned int count;
-    unsigned int loopIsInfinite = 0;
+    // unsigned int count;
+    // unsigned int loopIsInfinite = 0;
 
-    if (frame_count == 0) loopIsInfinite = 1;  // infinite loop
-    count = frame_count;
+    if (frame_count == 0) {};  // infinite loop
+    // count = frame_count;
 
-    while ((count-- > 0) || loopIsInfinite) {
+    while (true) {
         for (;;) {
             fd_set fds;
             struct timeval tv;
@@ -564,6 +564,7 @@ int startStream() {
     open_device();
     init_device();
     start_capturing();
+    std::cout << "Starting main loop\n";
     mainloop();
     std::cout << "End main loop\n";
     stop_capturing();
