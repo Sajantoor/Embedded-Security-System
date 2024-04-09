@@ -162,7 +162,8 @@ export default function Home() {
     <Box p="10">
       <Flex gap="10" className="flex-col lg:flex-row">
         <Flex flexDirection="column" className="capitalize lg:w-1/2 xl:w-1/3" gap="4">
-          <Image src={cameraFeed || '/loading.jpg'} alt="Security Camera" className="" />
+          {/* <Image src={cameraFeed || '/loading.jpg'} alt="Security Camera" className="" /> */}
+          <canvas ref={canvasRef} width="480" height="480"></canvas>
           <Box>
             <Text className="text-3xl font-bold">Show Message</Text>
             <Text className="pb-2 normal-case">Display a message with a timeout. 0 is no timeout.</Text>
@@ -186,26 +187,6 @@ export default function Home() {
               </Button>
             </Flex>
           </Box>
-    <Box p="20">
-      <Center>
-        <Heading> Security Camera Status: {cameraStatus} </Heading>
-      </Center>
-
-      <Center>
-        <Heading> Door Lock Status: {lockStatus} </Heading>
-      </Center>
-
-      <canvas ref={canvasRef} width="480" height="480"></canvas>
-
-      <Text> Last updated: {lastUpdated} </Text>
-      <Text> Uptime: {uptime} </Text>
-
-      <Box>
-        <Text> Toggle Lock </Text>
-        <Switch size="lg"
-          isChecked={lockStatus === "locked"}
-          onChange={() => handleLockToggle()} />
-      </Box>
 
           <Box>
             <Text className="text-3xl font-bold pb-2">Change Password</Text>
