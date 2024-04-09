@@ -8,8 +8,11 @@ class Relay {
   public:
     Relay();
 
+    /* Opens the door */
     void open();
+    /* Closes the door */
     void close();
+    bool isOpen();
 };
 
 #endif

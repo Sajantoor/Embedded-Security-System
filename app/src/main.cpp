@@ -1,71 +1,116 @@
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "common/utils.hpp"
 #include "displayManager.hpp"
+#include "hal/joystick.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 #include "hal/led.hpp"
+#include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
 #include "hal/webcam.hpp"
+#include "messageHandler.hpp"
+#include "notifier.hpp"
 #include "password.hpp"
-
-void testRelay();
-void testDisplayWithKeypad(LCD& lcd, Keypad& keypad);
-void testLCD();
-void testWebcam();
+#include "socket.hpp"
+#include "shutdownHandler.hpp"
 
 int main(void) {
-    // Password password;
-    // LCD lcd;
-    // Keypad keypad(4);
-    std::cout << "Hello, World!" << std::endl;
-    // testRelay();
-    // testLCD();
-    // testDisplayWithKeypad(lcd, keypad);
-    // keypad.stop();
-    testWebcam();
-    return 0;
-}
-
-void testRelay() {
+    // Init hardware
     Relay relay;
-    sleepForMs(1000);
+    Keypad keypad(4);
+    JoyStick joystick;
+    LCD lcd;
+    DisplayManager displayManager(lcd, keypad);
+    Password password;
+    Socket socket;
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
+    Notifier notifier(&socket);
+    MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
 
-    // Closing lock
-    relay.open();
-    sleepForMs(1000);
-
-    // Opening lock
+    // Close the relay at the start of the program
     relay.close();
-    sleepForMs(500);
-}
 
-void testDisplayWithKeypad(LCD& lcd, Keypad& keypad) {
-    DisplayManager displayManager = DisplayManager(lcd, keypad);
-    displayManager.displayMessage("Hello World!");
-    displayManager.displayMessage("Enter password:", 0, true);
-    std::cout << "Password entered: " << keypad.getInput() << std::endl;
-    displayManager.displayMessage("Door is locked", 5000);
-    displayManager.displayMessage("Confirm password:", 0, true);
-    std::cout << "Password entered: " << keypad.getInput() << std::endl;
-    displayManager.displayMessage("Door is unlocked", 5000);
-    sleepForMs(6000);
-}
+    // initialize password
+    if (!password.doesPasswordExist()) {
+        displayManager.displayMessage("Please enter a password", 0, true);
+        password.savePassword(keypad.getInput());
+        notifier.notify(PASSWORD_SET);
+        sleepForMs(1000);
+    }
 
-void testLCD() {
-    LCD lcd = LCD();
+    int failedPasswordAttempts = 0;
+    while (!shutdownHandler.isShutdown()) {
+        if (relay.isOpen()) {
+            displayManager.displayMessage("Door is open", 0, false);
+        } else {
+            displayManager.displayMessage("Door is closed", 0, false);
+        }
 
-    // first 16 chars shown ("My ")
-    // 24 chars not shown
-    // then 16 shown ("working")
-    // final 19 chars not displayed
-    // lcd.displayMessage("Hello World!!! My Name is Jimmy.");
+        // if joystick is pressed and door is closed, enter the password.
+        if (joystick.isButtonPressed() && !relay.isOpen()) {
+            displayManager.displayMessage("Enter password", 0, true);
+            std::string input = keypad.getInput();
 
-    lcd.clearDisplay();
-    sleepForMs(2000);
-    lcd.displayToLCD("abcdefghi ");
-    lcd.displayToLCD("jklmnopqrstuvwxyz0123456789");
+            if (password.isPasswordCorrect(input)) {
+                displayManager.displayMessage("Password correct", 0, false);
+                relay.open();
+                notifier.notify(DOOR_OPEN);
+                failedPasswordAttempts = 0;
+            } else {
+                displayManager.displayMessage("Password incorrect", 0, false);
+                failedPasswordAttempts++;
+
+                if (failedPasswordAttempts >= 3) {
+                    std::string message =
+                        "Multiple failed password attempts (" + std::to_string(failedPasswordAttempts) + ")";
+
+                    displayManager.displayMessage(message, 0, false);
+                    notifier.notify(FAILED_PASSWORD, message);
+                }
+
+                // disable at 5 failed password attempts
+                if (failedPasswordAttempts >= 5) {
+                    displayManager.displayMessage("System disabled for 2 minutes", 0, false);
+                    sleepForMs(1000 * 2 * 60);
+                }
+            }
+
+            sleepForMs(1000);
+        }
+
+        // If door is open and joystick pressed down, close the door
+        // If joystick is pressed may not work, need to debounce the joystick.
+        // Ideally we change this to joystick pressed or button is pressed but yeah.
+        if (joystick.isButtonPressed() && relay.isOpen()) {
+            relay.close();
+            notifier.notify(DOOR_CLOSED);
+        }
+
+        // This is temporary for testing, password change
+        if (joystick.getDirection() == UP) {
+            displayManager.displayMessage("Enter old password", 0, true);
+            std::string oldPassword = keypad.getInput();
+
+            displayManager.displayMessage("Enter new password", 0, true);
+            std::string newPassword = keypad.getInput();
+
+            if (password.changePassword(oldPassword, newPassword)) {
+                displayManager.displayMessage("Password changed", 0, false);
+                notifier.notify(PASSWORD_CHANGED);
+            } else {
+                displayManager.displayMessage("Password incorrect. try again", 0, false);
+                notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
+            }
+ 
+            sleepForMs(1000);
+        }
+    }
+    messageHandler.stop();
+
+    return 0;
 }
 
 void testWebcam() {

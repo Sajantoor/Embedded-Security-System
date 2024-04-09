@@ -8,6 +8,7 @@ These messages disappear when the keypad is pressed, showing keypad input.
 #define _DISPLAY_MANAGER_HPP_
 
 #include <stdbool.h>
+#include <string>
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 
@@ -15,6 +16,8 @@ class DisplayManager {
   private:
     LCD& lcd;
     Keypad& keypad;
+    std::string prevMsg = "";
+    bool isRunning = true;
 
   public:
     DisplayManager(LCD& lcd, Keypad& keypad);
@@ -23,6 +26,8 @@ class DisplayManager {
     // If timeout is set, the message will be cleared after the timeout
     // If requireKeypadInput is set to true, keypad input will replace the message
     void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
+    // Sets isRunning to false
+    void stop();
 };
 
 #endif
