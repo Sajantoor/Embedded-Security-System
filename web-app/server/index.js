@@ -14,7 +14,7 @@ webSocketServer.listen(port);
 const UDP_SERVER_ADDRESS = "127.0.0.1";
 const UDP_SERVER_PORT = 7070;
 
-const UDP_BBG_ADDRESS = "192.168.6.1";
+const UDP_BBG_ADDRESS = "192.168.7.1";
 const UDP_BBG_PORT = 1234;
 
 const udpServer = dgram.createSocket("udp4");
@@ -46,11 +46,6 @@ webSocketServer.on("connection", (socket) => {
     socket.on("message", (message) => {
         console.log("Received message: ", message);
         udpServer.send(message, 0, message.length, UDP_BBG_PORT, UDP_BBG_ADDRESS);
-
-        if (!ffmpegProcess) {
-            console.log("Restarting ffmpeg");
-            ffmpegProcess = startFFMpegProcess();
-        }
     });
 });
 
@@ -85,7 +80,9 @@ ffmpegProcess.on("error", function (err) {
 ffmpegProcess.on("close", function (code) {
     console.log("ffmpeg exited with code " + code);
     ffmpegProcess = null;
-    ffmpegProcess = startFFMpegProcess();
+    setTimeout(function(){
+        ffmpegProcess = startFFMpegProcess();
+    }, 50);
 });
 
 ffmpegProcess.stderr.on("data", function (data) {
@@ -94,7 +91,6 @@ ffmpegProcess.stderr.on("data", function (data) {
 });
 
 ffmpegProcess.stdout.on("data", function (data) {
-    console.log("got data");
     frame = Buffer.from(data).toString("base64"); //convert raw data to string
     if (currentClientSocket) {
         currentClientSocket.emit("canvas", frame);
