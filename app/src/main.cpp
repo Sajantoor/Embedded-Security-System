@@ -70,7 +70,7 @@ int main(void) {
 
                     displayManager.displayMessage(message, 0, false);
                     notifier.notify(FAILED_PASSWORD, message);
-                    sleepForMs(2000);
+                    sleepForMs(5000);
                 }
 
                 // disable at 5 failed password attempts
