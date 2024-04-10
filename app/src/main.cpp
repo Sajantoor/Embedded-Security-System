@@ -8,7 +8,6 @@
 #include "hal/joystick.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
-#include "hal/led.hpp"
 #include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
 #include "messageHandler.hpp"

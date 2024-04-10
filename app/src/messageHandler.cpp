@@ -23,6 +23,7 @@ void MessageHandler::handleUnlock(void) {
     relay->open();
 }
 
+// Takes in the current password and the new password, and updates the password if the current password is correct
 void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     if (arguments.size() != 2) {
         notifier->notify(FAILED_PASSWORD, "Invalid number of arguments");
@@ -39,6 +40,7 @@ void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     }
 }
 
+// Sets the display message to the given message for the given timeout
 void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments) {
     if (arguments.size() < 1) {
         notifier->notify(DISPLAY_MESSAGE_FAILED, "Invalid number of arguments");

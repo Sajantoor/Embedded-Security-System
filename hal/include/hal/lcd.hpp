@@ -1,5 +1,7 @@
 // Unless specified, each function will set RS Pin to 0
-#pragma once
+#ifndef _LCD_HPP_
+#define _LCD_HPP_
+
 #include <atomic>
 #include <mutex>
 #include <string>
@@ -68,3 +70,5 @@ class LCD {
     // Clears display, sets DDRAM addr to 0, clears DDRAM values
     void clearDisplay(bool stopScroll = true);
 };
+
+#endif

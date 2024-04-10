@@ -1,4 +1,9 @@
-#pragma once
+/*
+Provides the shutdown state and shuts down the system.
+*/
+
+#ifndef _SHUTDOWN_HANDLER_HPP_
+#define _SHUTDOWN_HANDLER_HPP_
 
 #include "displayManager.hpp"
 #include "hal/buzzer.hpp"
@@ -18,3 +23,5 @@ class ShutdownHandler {
     void shutdown(void);
     bool isShutdown(void);
 };
+
+#endif
