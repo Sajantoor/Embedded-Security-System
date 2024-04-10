@@ -48,7 +48,7 @@ const sendDiscordMessage = (message) => {
 webSocketServer.on('connection', (socket) => {
   udpServer.on('message', (msg) => {
     console.log('Received message from UDP server: ', msg.toString());
-    socket.emit('message', msg.toString());
+    handleMessage(msg.toString(), socket);
   });
 
   socket.on('disconnect', () => {
@@ -58,6 +58,73 @@ webSocketServer.on('connection', (socket) => {
   socket.on('message', (message) => {
     console.log('Received message: ', message);
     udpServer.send(message, 0, message.length, UDP_BBG_PORT, UDP_BBG_ADDRESS);
-    sendDiscordMessage(message);
   });
 });
+
+const COMMANDS = {
+  DOOR_OPEN: 'doorOpen',
+  DOOR_CLOSE: 'doorClose',
+  FAILED_PASSWORD: 'failedPassword',
+  MOTION_DETECTED: 'motionDetected',
+  PASSWORD_CHANGED: 'passwordChanged',
+  PASSWORD_SET: 'passwordSet',
+  PASSWORD_CHANGE_FAILED: 'passwordChangeFailed',
+  DISPLAY_MESSAGE_SET: 'displayMessageSet',
+  DISPLAY_MESSAGE_FAILED: 'displayMessageFailed'
+};
+
+function handleMessage(message, socket) {
+  const tokens = message.split(' ');
+  const command = tokens[0];
+  const epochTime = tokens[1];
+
+  const date = new Date();
+  date.setUTCSeconds(epochTime);
+  const timestamp = date.toLocaleString();
+
+  let message;
+  let messageSent = '';
+
+  switch (command) {
+    case COMMANDS.DOOR_OPEN:
+      message = 'Door Opened';
+      break;
+    case COMMANDS.DOOR_CLOSE:
+      message = 'Door Closed';
+      break;
+    case COMMANDS.FAILED_PASSWORD:
+      messageSent = tokens[2];
+      message = `Failed Password: ${messageSent}`;
+      break;
+    case COMMANDS.PASSWORD_CHANGED:
+      message = 'Password Changed';
+      break;
+    case COMMANDS.PASSWORD_SET:
+      message = 'Password Set';
+      break;
+    case COMMANDS.PASSWORD_CHANGE_FAILED:
+      message = 'Password Change Failed';
+      break;
+    case COMMANDS.DISPLAY_MESSAGE_SET:
+      message = 'Display Message Set'
+      break;
+    case COMMANDS.MOTION_DETECTED:
+      message = 'Motion Detected'
+      break;
+    case COMMANDS.DISPLAY_MESSAGE_FAILED:
+      messageSent = tokens[2];
+      message += `Display Message Failed: ${messageSent}`;
+      break;
+    default:
+      console.error(`Unknown command: ${command} and message: ${message}`);
+      return;
+  }
+
+  const discordMessage = `**${timestamp}**: ${message}`;
+  sendDiscordMessage(discordMessage);
+
+  socket.emit('event', {
+    message,
+    epochTime,
+  });
+}

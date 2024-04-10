@@ -26,6 +26,7 @@ const DISPLAY_COMMAND = 'setDisplayMessage';
 const LOCK_COMMAND = 'lock';
 const UNLOCK_COMMAND = 'unlock';
 const CHANGE_PASSWORD_COMMAND = 'changePassword';
+const SHUTDOWN = 'shutdown';
 
 export default function Home() {
   const [cameraStatus, setCameraStatus] = useState('offline');
@@ -41,26 +42,37 @@ export default function Home() {
   const [timeout, setTimeout] = useState(5);
   const [socket, setSocket] = useState(null);
   const [uptime, setUptime] = useState(0);
+  const [events, setEvents] = useState([]);
+  // most likely not going to use this
   const [errors, setErrors] = useState(['System is overheating', 'Camera is offline', 'Lock is jammed']);
-  const [events, setEvents] = useState([
-    {
-      message: 'Multiple Failed Password Attempts',
-      timestamp: new Date(),
-      image: '/loading.jpg',
-    },
-    { message: 'System stopped', timestamp: new Date(), image: '/loading.jpg' },
-  ]);
 
   useEffect(() => {
-    // Create a socket connection
     const url = 'http://localhost:4000';
     const socket = io(url);
 
     setSocket(socket);
 
-    // Listen for incoming messages
-    socket.on('message', (message) => {
-      handleMessage(message);
+    socket.on('event', (event) => {
+      const date = new Date();
+      date.setUTCSeconds(event.epochTime);
+      event.timestamp = date;
+      event.image = '/loading.jpg';
+
+      // if the event message contains 'door open' or 'door close', setDoorStatus
+      if (event.message.includes('Door Opened')) {
+        setLockStatus('unlocked');
+      } else if (event.message.includes('Door Closed')) {
+        setLockStatus('locked');
+      } else if (event.message.includes('Display Message Set')) {
+        setCurrentMessage(displayMessage);
+      }
+
+      setEvents((prevEvents) => [...prevEvents, event]);
+    });
+
+    socket.on('uptime', (uptime) => {
+      setUptime(uptime);
+      setSystemStatus('online');
     });
 
     // Clean up the socket connection on unmount
@@ -68,10 +80,6 @@ export default function Home() {
       socket.disconnect();
     };
   }, []);
-
-  function handleMessage(message) {
-    console.log('Handling message: ', message);
-  }
 
   function sendMessageToServer(message) {
     if (socket) {
@@ -133,6 +141,11 @@ export default function Home() {
     setConfirmPassword('');
   }
 
+  function handleShutdown() {
+    sendMessageToServer(SHUTDOWN);
+    setSystemStatus('shutdown');
+  }
+
   return (
     <Box p="10">
       <Flex gap="10" className="flex-col lg:flex-row">
@@ -190,7 +203,7 @@ export default function Home() {
               </Flex>
             </Flex>
           </Box>
-          <Button colorScheme="red">Shutdown</Button>
+          <Button colorScheme="red" onClick={handleShutdown}>Shutdown</Button>
         </Flex>
 
         <Flex flexDirection="column" className="lg:w-1/2 xl:w-2/3" gap={6}>
@@ -225,10 +238,10 @@ export default function Home() {
             {/* Show last 4 errors */}
             {errors.length
               ? errors.slice(-4).map((error, index) => (
-                  <Text key={index} className="text-red-600">
-                    {error}
-                  </Text>
-                ))
+                <Text key={index} className="text-red-600">
+                  {error}
+                </Text>
+              ))
               : 'None! System is running smoothly'}
           </div>
           <div>

@@ -41,6 +41,7 @@ int main(void) {
     }
 
     int failedPasswordAttempts = 0;
+
     while (!shutdownHandler.isShutdown()) {
         if (relay.isOpen()) {
             displayManager.displayMessage("Door is open", 0, false);
