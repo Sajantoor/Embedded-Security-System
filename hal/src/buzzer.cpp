@@ -17,10 +17,10 @@ Buzzer::Buzzer(void) {
     buzzerThread = std::thread([this]() {
         while (!isStopped) {
             if (playSound) {
-                updatePwm(800000, 400000);
+                updatePwm(1000000, 500000);
                 sleepForMs(150);
-                updatePwm(400000, 200000);
-                sleepForMs(150);
+                updatePwm(2000000, 1000000);
+                sleepForMs(300);
                 disableBuzzerSound();
                 playSound = false;
             }
