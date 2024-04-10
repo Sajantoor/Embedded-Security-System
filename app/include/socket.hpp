@@ -31,18 +31,17 @@ class Udp {
     unsigned int getPort(void) { return port; }
     virtual const void* getData(void) = 0;
     virtual unsigned int getSize(void) = 0;
-    virtual ~Udp() {} //Needed for delete
+    virtual ~Udp() {}  //Needed for delete
 };
 
 class UdpMessage : public Udp {
   public:
     UdpMessage(std::string message, std::string ip, unsigned int port) : Udp(ip, port), message(message) {}
 
-    const void* getData(void)override { return message.c_str(); }
-    std::string getMessage(void) {return message;}
-    unsigned int getSize(void) override {return message.size(); }
+    const void* getData(void) override { return message.c_str(); }
+    std::string getMessage(void) { return message; }
+    unsigned int getSize(void) override { return message.size(); }
     void setMessage(std::string message) { this->message = message; }
-
 
   private:
     std::string message;
@@ -55,7 +54,6 @@ class UdpStream : public Udp {
 
     const void* getData(void) override { return data; }
     unsigned int getSize(void) { return size; }
-
 
   private:
     const void* data;
