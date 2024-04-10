@@ -32,6 +32,7 @@ int main(void) {
 
     // Close the relay at the start of the program
     relay.close();
+    displayManager.displayMessage("Door is closed", 0, false);
 
     bool wasDoorOpen = false;
 
