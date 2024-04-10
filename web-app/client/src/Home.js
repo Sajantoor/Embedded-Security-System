@@ -57,7 +57,7 @@ export default function Home() {
     });
 
     socket.on('event', (event) => {
-      const date = new Date();
+      const date = new Date(0);
       date.setUTCSeconds(event.epochTime);
       event.timestamp = date;
       event.image = '/loading.jpg';
