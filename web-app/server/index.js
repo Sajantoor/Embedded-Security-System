@@ -23,7 +23,7 @@ const DISCORD_EMBED_COLOR = 5814783;
 const UDP_SERVER_ADDRESS = '127.0.0.1';
 const UDP_SERVER_PORT = 7070;
 
-const UDP_BBG_ADDRESS = "192.168.7.1";
+const UDP_BBG_ADDRESS = "192.168.6.1";
 const UDP_BBG_PORT = 1234;
 
 const udpServer = dgram.createSocket('udp4');
