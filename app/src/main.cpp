@@ -4,6 +4,7 @@
 
 #include "common/utils.hpp"
 #include "displayManager.hpp"
+#include "hal/buzzer.hpp"
 #include "hal/joystick.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
@@ -13,8 +14,8 @@
 #include "messageHandler.hpp"
 #include "notifier.hpp"
 #include "password.hpp"
-#include "socket.hpp"
 #include "shutdownHandler.hpp"
+#include "socket.hpp"
 
 int main(void) {
     // Init hardware
@@ -25,7 +26,8 @@ int main(void) {
     DisplayManager displayManager(lcd, keypad);
     Password password;
     Socket socket;
-    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
+    Buzzer buzzer;
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer);
     Notifier notifier(&socket);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
 
@@ -61,6 +63,7 @@ int main(void) {
             } else {
                 displayManager.displayMessage("Password incorrect", 0, false);
                 failedPasswordAttempts++;
+                buzzer.buzz();
 
                 if (failedPasswordAttempts >= 3) {
                     std::string message =
@@ -102,8 +105,9 @@ int main(void) {
             } else {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
                 notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
+                buzzer.buzz();
             }
- 
+
             sleepForMs(1000);
         }
     }
