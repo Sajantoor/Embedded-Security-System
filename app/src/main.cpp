@@ -28,6 +28,7 @@ int main(void) {
     ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
     Notifier notifier(&socket);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
+    std::cout << "Starting program" << std::endl;
 
     // Close the relay at the start of the program
     relay.close();
@@ -69,6 +70,7 @@ int main(void) {
 
                     displayManager.displayMessage(message, 0, false);
                     notifier.notify(FAILED_PASSWORD, message);
+                    sleepForMs(2000);
                 }
 
                 // disable at 5 failed password attempts

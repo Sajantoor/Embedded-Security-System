@@ -52,6 +52,10 @@ export default function Home() {
 
     setSocket(socket);
 
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
     socket.on('event', (event) => {
       const date = new Date();
       date.setUTCSeconds(event.epochTime);
