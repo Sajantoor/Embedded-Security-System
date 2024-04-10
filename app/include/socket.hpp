@@ -78,8 +78,7 @@ class Socket {
     /**
      * Sends a message
      */
-    void send(UdpMessage* message);
-    void sendData(UdpStream* streamData);
+    void send(Udp* message);
     /**
      * Returns true if the socket is currently recieving messages.
      */
