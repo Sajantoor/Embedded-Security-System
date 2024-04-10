@@ -119,7 +119,13 @@ ffmpegProcess.stderr.on("data", function (data) {
 
 ffmpegProcess.stdout.on("data", function (data) {
     frame = Buffer.from(data).toString("base64"); //convert raw data to string
+
     if (currentClientSocket) {
         currentClientSocket.emit("canvas", frame);
     }
+
 });
+
+function getCurrentFrame(){
+  return "data:image/jpeg;base64," + frame;
+}

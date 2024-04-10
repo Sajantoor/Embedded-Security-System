@@ -163,7 +163,7 @@ export default function Home() {
       <Flex gap="10" className="flex-col lg:flex-row">
         <Flex flexDirection="column" className="capitalize lg:w-1/2 xl:w-1/3" gap="4">
           {/* <Image src={cameraFeed || '/loading.jpg'} alt="Security Camera" className="" /> */}
-          <canvas ref={canvasRef} width="480" height="480"></canvas>
+          <canvas ref={canvasRef} width="720" height="480"></canvas>
           <Box>
             <Text className="text-3xl font-bold">Show Message</Text>
             <Text className="pb-2 normal-case">Display a message with a timeout. 0 is no timeout.</Text>
