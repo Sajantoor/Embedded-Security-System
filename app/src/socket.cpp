@@ -65,7 +65,7 @@ void Socket::send(UdpMessage* message) {
     inet_pton(AF_INET, message->getIp().c_str(), &serverAddress.sin_addr);
 
     // Send a message to the server
-    int bytesSent = sendto(this->socketFd, message->getMessage().c_str(), message->getMessage().size(), 0,
+    int bytesSent = sendto(this->socketFd, message->getData(), message->getSize(), 0,
                            (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
     if (bytesSent == -1) {
