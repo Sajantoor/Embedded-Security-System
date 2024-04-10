@@ -13,8 +13,8 @@
 #include "messageHandler.hpp"
 #include "notifier.hpp"
 #include "password.hpp"
-#include "socket.hpp"
 #include "shutdownHandler.hpp"
+#include "socket.hpp"
 
 int main(void) {
     // Init hardware
@@ -73,7 +73,7 @@ int main(void) {
                 // disable at 5 failed password attempts
                 if (failedPasswordAttempts >= 5) {
                     displayManager.displayMessage("System disabled for 2 minutes", 0, false);
-                    sleepForMs(1000 * 2 * 60);
+                    sleepWhileCheckingConditon([&] { return !shutdownHandler.isShutdown(); }, 1000 * 2 * 60);
                 }
             }
 
@@ -103,7 +103,7 @@ int main(void) {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
                 notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
             }
- 
+
             sleepForMs(1000);
         }
     }

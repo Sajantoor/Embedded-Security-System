@@ -47,3 +47,11 @@ void runCommand(std::string command, bool show_output) {
     int exit_code = WEXITSTATUS(pclose(pipe));
     if (exit_code != 0) std::cerr << "Error running command: " << command << std::endl;
 }
+
+void sleepWhileCheckingConditon(std::function<bool()> condition, int timeoutMs) {
+    int timeout = 0;
+    while (condition() && timeout < timeoutMs) {
+        sleepForMs(1);
+        timeout++;
+    }
+}
