@@ -114,12 +114,12 @@ export default function Home() {
     }
 
     if (timeoutValue > 0) {
-      sendMessageToServer(`${DISPLAY_COMMAND} ${displayMessage} ${timeoutValue}`);
+      sendMessageToServer(`${DISPLAY_COMMAND} ${timeoutValue} ${displayMessage}`);
     } else {
-      sendMessageToServer(`${DISPLAY_COMMAND} ${displayMessage}`);
+      sendMessageToServer(`${DISPLAY_COMMAND} 0 ${displayMessage}`);
     }
 
-    setTimeout(5);
+    setTimeout(0);
     setDisplayMessage('');
   }
 

@@ -33,6 +33,8 @@ int main(void) {
     // Close the relay at the start of the program
     relay.close();
 
+    bool wasDoorOpen = false;
+
     // initialize password
     if (!password.doesPasswordExist()) {
         displayManager.displayMessage("Please enter a password", 0, true);
@@ -44,10 +46,12 @@ int main(void) {
     int failedPasswordAttempts = 0;
 
     while (!shutdownHandler.isShutdown()) {
-        if (relay.isOpen()) {
+        if (relay.isOpen() && !wasDoorOpen) {
             displayManager.displayMessage("Door is open", 0, false);
-        } else {
+            wasDoorOpen = true;
+        } else if (!relay.isOpen() && wasDoorOpen) {
             displayManager.displayMessage("Door is closed", 0, false);
+            wasDoorOpen = false;
         }
 
         // if joystick is pressed and door is closed, enter the password.

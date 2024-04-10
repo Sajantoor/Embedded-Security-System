@@ -1,4 +1,5 @@
 #include "messageHandler.hpp"
+#include <sstream>
 
 MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
                                ShutdownHandler* shutdownHandler, Notifier* notifier)
@@ -45,13 +46,8 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
         return;
     }
 
-    std::string message = arguments[0];
-    unsigned int timeout = 0;
-
-    if (arguments.size() == 2) {
-        // convert seconds to milliseconds
-        timeout = std::stoi(arguments[1]) * 1000;
-    }
+    unsigned int timeout = std::stoi(arguments[0]) * 1000;
+    std::string message = arguments[1];
 
     displayManager->displayMessage(message, timeout);
     notifier->notify(DISPLAY_MESSAGE_SET);
@@ -62,21 +58,34 @@ void MessageHandler::handleShutdown(void) {
     shutdownHandler->shutdown();
 }
 
+std::vector<std::string> splitString(const std::string& input) {
+    std::vector<std::string> tokens;
+    std::istringstream iss(input);
+    std::string token;
+
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+
+    return tokens;
+}
+
 void MessageHandler::handleUDPMessages(void) {
     messageHandlerThread = std::thread([this] {
         while (isRunning) {
             UdpMessage* message = socket->receive();
             std::string messageString = message->getMessage();
 
-            // Remove newline character
-            messageString = messageString.substr(0, messageString.find("\n"));
-            // split messageString into command and argument
-            std::string command = messageString.substr(0, messageString.find(" "));
+            std::vector<std::string> tokens = splitString(messageString);
+            std::string command = tokens[0];
             std::vector<std::string> arguments = {};
 
-            if (messageString.find(" ") != std::string::npos) {
-                std::string argument = messageString.substr(messageString.find(" ") + 1);
-                arguments.push_back(argument);
+            for (unsigned int i = 1; i < tokens.size(); i++) {
+                if (i > 2) {
+                    arguments[1] += " " + tokens[i];
+                }
+
+                arguments.push_back(tokens[i]);
             }
 
             /**
@@ -85,7 +94,7 @@ void MessageHandler::handleUDPMessages(void) {
              * lock
              * unlock
              * changePassword [currentPassword] [newPassword]
-             * setDisplayMessage [message] [timeout (in seconds) optional]
+             * setDisplayMessage [timeout (in seconds) optional] [message]
              * shutdown
              *
              */

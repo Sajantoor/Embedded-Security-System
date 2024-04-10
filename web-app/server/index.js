@@ -46,12 +46,6 @@ const sendDiscordMessage = (message) => {
     });
 };
 
-
-udpServer.on('message', (msg) => {
-  console.log('Received message from UDP server: ', msg.toString());
-  handleMessage(msg.toString(), null);
-});
-
 webSocketServer.on('connection', (socket) => {
   udpServer.on('message', (msg) => {
     console.log('Received message from UDP server: ', msg.toString());
