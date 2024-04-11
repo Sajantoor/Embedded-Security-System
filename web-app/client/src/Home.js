@@ -113,6 +113,7 @@ export default function Home() {
   function systemDown() {
     setSystemStatus('Offline');
     setErrors(['System is down!']);
+    setUptime('N/A');
   }
 
   function drawCanvas(data) {
@@ -292,7 +293,7 @@ export default function Home() {
               <span className="font-bold">Last updated:</span> {lastUpdated.toLocaleString()}
             </Text>
             <Text>
-              <span className="font-bold">Uptime:</span> {showUptime(uptime)}
+              <span className="font-bold">Uptime:</span> {!isNaN(uptime) ? showUptime(uptime) : uptime}
             </Text>
             <Flex gap="2" className="items-center">
               <Text className="font-bold">Toggle Lock</Text>
