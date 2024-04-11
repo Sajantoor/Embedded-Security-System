@@ -52,14 +52,50 @@ const sendDiscordMessage = (message) => {
     });
 };
 
+// Send messages to discord, does not require a socket connection
+udpServer.on('message', (msg) => {
+  const parsedMessage = parseMessage(msg.toString());
+
+  if (!parsedMessage) {
+    return;
+  }
+
+  const command = parsedMessage.command;
+
+  if (command === COMMANDS.HEARTBEAT) {
+    return;
+  }
+
+  const message = parsedMessage.message;
+  const timestamp = convertEpochTimeToTimestamp(parsedMessage.epochTime);
+  const discordMessage = `**${timestamp}**: ${message}`;
+  sendDiscordMessage(discordMessage);
+});
+
 webSocketServer.on('connection', (socket) => {
   console.log("Connected");
   currentClientSocket = socket;
 
+  // Send messages to the connected client
   udpServer.on('message', (msg) => {
     console.log('Received message from UDP server: ', msg.toString());
-    handleMessage(msg.toString(), socket);
-    socket.emit('message', msg.toString());
+    const parsedMessage = parseMessage(msg.toString(), socket);
+
+    if (!parsedMessage) {
+      return;
+    }
+
+    const command = parsedMessage.command;
+    if (command === COMMANDS.HEARTBEAT) {
+      socket.emit('heartbeat', parsedMessage.message);
+      return;
+    }
+
+    socket.emit('event', {
+      message: parsedMessage.message,
+      epochTime: parseMessage.epochTime,
+      image: getCurrentFrame()
+    });
   });
 
   socket.on("connect", () => {
@@ -148,14 +184,16 @@ const COMMANDS = {
   HEARTBEAT: 'heartbeat',
 };
 
-function handleMessage(message, socket) {
+function convertEpochTimeToTimestamp(epochTime) {
+  const date = new Date(0);
+  date.setUTCSeconds(epochTime);
+  return date.toLocaleString("en-US", { timeZone: "America/Vancouver" });
+}
+
+function parseMessage(message, socket) {
   const tokens = message.split(' ');
   const command = tokens[0];
   const epochTime = parseInt(tokens[1]);
-
-  const date = new Date(0);
-  date.setUTCSeconds(epochTime);
-  const timestamp = date.toLocaleString("en-US", { timeZone: "America/Vancouver" });
 
   let messageSent = '';
 
@@ -190,21 +228,12 @@ function handleMessage(message, socket) {
       message += `Display Message Failed: ${messageSent}`;
       break;
     case COMMANDS.HEARTBEAT:
-      socket.emit('heartbeat', message);
-      return;
+      // do nothing
+      break;
     default:
       console.error(`Unknown command: ${command} and message: ${message}`);
       return;
   }
 
-  const discordMessage = `**${timestamp}**: ${message}`;
-  sendDiscordMessage(discordMessage);
-
-  if (socket) {
-    socket.emit('event', {
-      message,
-      epochTime,
-      image: getCurrentFrame()
-    });
-  }
+  return { message, epochTime, command };
 }
