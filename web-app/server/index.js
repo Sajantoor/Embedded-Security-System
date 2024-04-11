@@ -144,7 +144,8 @@ const COMMANDS = {
   PASSWORD_SET: 'passwordSet',
   PASSWORD_CHANGE_FAILED: 'passwordChangeFailed',
   DISPLAY_MESSAGE_SET: 'displayMessageSet',
-  DISPLAY_MESSAGE_FAILED: 'displayMessageFailed'
+  DISPLAY_MESSAGE_FAILED: 'displayMessageFailed',
+  HEARTBEAT: 'heartbeat',
 };
 
 function handleMessage(message, socket) {
@@ -188,6 +189,9 @@ function handleMessage(message, socket) {
       messageSent = tokens.slice(2).join(' ');
       message += `Display Message Failed: ${messageSent}`;
       break;
+    case COMMANDS.HEARTBEAT:
+      socket.emit('heartbeat', message);
+      return;
     default:
       console.error(`Unknown command: ${command} and message: ${message}`);
       return;
