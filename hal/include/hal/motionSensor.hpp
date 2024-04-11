@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Motion sensor interface
  */

@@ -5,9 +5,9 @@
 
 #define A2D_VOLTAGE_REF 1.8
 #define A2D_MAX_READING 4095
-#define MOTION_THRESHOLD 2000
+#define MOTION_THRESHOLD 3600
 
-static constexpr const char* VOLTAGE_FILE = "/sys/bus/iio/devices/iio:device0/in_voltage0_raw";
+static constexpr const char* VOLTAGE_FILE = "/sys/bus/iio/devices/iio:device0/in_voltage1_raw";
 
 bool MotionSensor::isMotionDetected(void) {
     return getA2DReading() > MOTION_THRESHOLD;
