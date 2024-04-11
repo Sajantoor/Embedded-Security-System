@@ -23,8 +23,8 @@ const DISCORD_EMBED_COLOR = 5814783;
 const UDP_SERVER_ADDRESS = '192.168.6.1';
 const UDP_SERVER_PORT = 7070;
 
-const UDP_BBG_ADDRESS = "192.168.6.1";
-const UDP_BBG_PORT = 1234;
+const UDP_BBG_ADDRESS = "192.168.6.2";
+const UDP_BBG_PORT = 12345;
 
 const udpServer = dgram.createSocket('udp4');
 udpServer.bind(UDP_SERVER_PORT, UDP_SERVER_ADDRESS);
@@ -51,23 +51,23 @@ const sendDiscordMessage = (message) => {
 };
 
 webSocketServer.on('connection', (socket) => {
-    console.log("Connected");
-    currentClientSocket = socket;
+  console.log("Connected");
+  currentClientSocket = socket;
 
   udpServer.on('message', (msg) => {
     console.log('Received message from UDP server: ', msg.toString());
     socket.emit('fmessage', msg.toString());
-    });
-
-    socket.on("connect", (client) => {
-        console.log("user connected");
-        client.emit("message", "Connected to server");
   });
 
-    socket.on("disconnect", () => {
-        currentClientSocket = null;
-        console.log("user disconnected");
-    });
+  socket.on("connect", (client) => {
+    console.log("user connected");
+    client.emit("message", "Connected to server");
+  });
+
+  socket.on("disconnect", () => {
+    currentClientSocket = null;
+    console.log("user disconnected");
+  });
 
   socket.on('message', (message) => {
     console.log('Received message: ', message);
@@ -77,55 +77,55 @@ webSocketServer.on('connection', (socket) => {
 });
 
 function startFFMpegProcess() {
-    console.log("ffmpeg process started");
+  console.log("ffmpeg process started");
 
-    const ffmpegArgs = [
-        "-re",
-        "-y",
-        "-i",
-        `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_PORT}`,
-        "-preset",
-        "ultrafast",
-        "-f",
-        "mjpeg",
-        "pipe:1"
-    ];
+  const ffmpegArgs = [
+    "-re",
+    "-y",
+    "-i",
+    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_PORT}`,
+    "-preset",
+    "ultrafast",
+    "-f",
+    "mjpeg",
+    "pipe:1"
+  ];
 
-    return child.spawn("ffmpeg", ffmpegArgs);
+  return child.spawn("ffmpeg", ffmpegArgs);
 }
 
 
 ffmpegProcess.on("connect", function () {
-    console.log("ffmpeg connected");
+  console.log("ffmpeg connected");
 });
 
 ffmpegProcess.on("error", function (err) {
-    console.log(err);
-    throw err;
+  console.log(err);
+  throw err;
 });
 
 ffmpegProcess.on("close", function (code) {
-    console.log("ffmpeg exited with code " + code);
-    ffmpegProcess = null;
-    setTimeout(function(){
-        ffmpegProcess = startFFMpegProcess();
-    }, 50);
+  console.log("ffmpeg exited with code " + code);
+  ffmpegProcess = null;
+  setTimeout(function () {
+    ffmpegProcess = startFFMpegProcess();
+  }, 50);
 });
 
 ffmpegProcess.stderr.on("data", function (data) {
-    // Don't remove this
-    // Child Process hangs when stderr exceed certain memory
+  // Don't remove this
+  // Child Process hangs when stderr exceed certain memory
 });
 
 ffmpegProcess.stdout.on("data", function (data) {
-    frame = Buffer.from(data).toString("base64"); //convert raw data to string
+  frame = Buffer.from(data).toString("base64"); //convert raw data to string
 
-    if (currentClientSocket) {
-        currentClientSocket.emit("canvas", frame);
-    }
+  if (currentClientSocket) {
+    currentClientSocket.emit("canvas", frame);
+  }
 
 });
 
-function getCurrentFrame(){
+function getCurrentFrame() {
   return "data:image/jpeg;base64," + frame;
 }
