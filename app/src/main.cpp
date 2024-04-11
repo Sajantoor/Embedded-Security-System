@@ -10,6 +10,7 @@
 #include "hal/lcd.hpp"
 #include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
+#include "hal/webcam.hpp"
 #include "messageHandler.hpp"
 #include "notifier.hpp"
 #include "password.hpp"
@@ -18,6 +19,7 @@
 
 int main(void) {
     // Init hardware
+    std::cout << "Initializing hardware" << std::endl;
     Relay relay;
     Keypad keypad(4);
     JoyStick joystick;
@@ -29,9 +31,10 @@ int main(void) {
     ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer);
     Notifier notifier(&socket);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
-    std::cout << "Starting program" << std::endl;
+    std::cout << "Initialization finished, starting program" << std::endl;
+    startStream();
 
-    // Close the relay at the start of the program
+    // Close the relay and start stream at the start of the program
     relay.close();
     displayManager.displayMessage("Door is closed", 0, false);
 

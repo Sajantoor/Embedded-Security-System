@@ -7,9 +7,10 @@ add_executable(security_project ${MY_SOURCES})
 # Make use of the HAL library
 target_link_libraries(security_project LINK_PRIVATE hal)
 
-# Copy executable to final location (change `security_project` to security_projectect name as needed)
+# Copy executable to final location (change `security_project` to security_project name as needed)
 add_custom_command(TARGET security_project POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:security_project>"
-     "~/cmpt433/public/" 
+     "~/cmpt433/public/myApps/securityProject" 
   COMMENT "Copying ARM executable to public NFS directory")
+

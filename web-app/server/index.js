@@ -2,6 +2,7 @@ const { Server } = require('socket.io');
 const dgram = require('dgram');
 const axios = require('axios');
 require('dotenv').config();
+const child = require("child_process");
 
 const DISCORD_WEBHOOK = process.env.DISCORD_WEBHOOK;
 if (!DISCORD_WEBHOOK) {
@@ -25,9 +26,14 @@ const UDP_SERVER_PORT = 7070;
 
 const UDP_BBG_ADDRESS = '192.168.6.2';
 const UDP_BBG_PORT = 12345;
+const UDP_BBG_STREAMING_PORT = 1234;
 
 const udpServer = dgram.createSocket('udp4');
 udpServer.bind(UDP_SERVER_PORT, UDP_SERVER_ADDRESS);
+
+let ffmpegProcess = startFFMpegProcess();
+let frame = null;
+let currentClientSocket = null;
 
 // Send message to Discord through Webhook
 const sendDiscordMessage = (message) => {
@@ -47,17 +53,22 @@ const sendDiscordMessage = (message) => {
 };
 
 webSocketServer.on('connection', (socket) => {
+  console.log("Connected");
+  currentClientSocket = socket;
+
   udpServer.on('message', (msg) => {
     console.log('Received message from UDP server: ', msg.toString());
     handleMessage(msg.toString(), socket);
+    socket.emit('message', msg.toString());
   });
 
-  socket.on('connect', () => {
-    console.log('user connected');
+  socket.on("connect", () => {
+    console.log("user connected");
   });
 
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
+  socket.on("disconnect", () => {
+    currentClientSocket = null;
+    console.log("user disconnected");
   });
 
   socket.on('message', (message) => {
@@ -65,6 +76,60 @@ webSocketServer.on('connection', (socket) => {
     udpServer.send(message, UDP_BBG_PORT, UDP_BBG_ADDRESS);
   });
 });
+
+function startFFMpegProcess() {
+  console.log("ffmpeg process started");
+
+  const ffmpegArgs = [
+    "-re",
+    "-y",
+    "-i",
+    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_STREAMING_PORT}`,
+    "-preset",
+    "ultrafast",
+    "-f",
+    "mjpeg",
+    "pipe:1"
+  ];
+
+  return child.spawn("ffmpeg", ffmpegArgs);
+}
+
+
+ffmpegProcess.on("connect", function () {
+  console.log("ffmpeg connected");
+});
+
+ffmpegProcess.on("error", function (err) {
+  console.log(err);
+  throw err;
+});
+
+ffmpegProcess.on("close", function (code) {
+  console.log("ffmpeg exited with code " + code);
+  ffmpegProcess = null;
+  setTimeout(function () {
+    ffmpegProcess = startFFMpegProcess();
+  }, 50);
+});
+
+ffmpegProcess.stderr.on("data", function (data) {
+  // Don't remove this
+  // Child Process hangs when stderr exceed certain memory
+});
+
+ffmpegProcess.stdout.on("data", function (data) {
+  frame = Buffer.from(data).toString("base64"); //convert raw data to string
+
+  if (currentClientSocket) {
+    currentClientSocket.emit("canvas", frame);
+  }
+
+});
+
+function getCurrentFrame() {
+  return "data:image/jpeg;base64," + frame;
+}
 
 const COMMANDS = {
   DOOR_OPEN: 'doorOpen',

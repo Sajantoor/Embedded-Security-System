@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import './index.css';
 import {
@@ -45,15 +45,16 @@ export default function Home() {
   const [events, setEvents] = useState([]);
   // most likely not going to use this
   const [errors, setErrors] = useState(['System is overheating', 'Camera is offline', 'Lock is jammed']);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     const url = 'http://localhost:4000';
     const socket = io(url);
-
     setSocket(socket);
 
-    socket.on('connect', () => {
-      console.log('Connected to server');
+    // Listen for connection event
+    socket.on("connect", (socket) => {
+      console.log("Connected to server");
     });
 
     socket.on('event', (event) => {
@@ -79,11 +80,29 @@ export default function Home() {
       setSystemStatus('online');
     });
 
+    socket.on("canvas", (data) => {
+      drawCanvas(data);
+    });
+
     // Clean up the socket connection on unmount
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  function drawCanvas(data) {
+    setCameraStatus("online");
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    const image = new window.Image();
+    image.src = "data:image/jpeg;base64," + data;
+    image.onload = function () {
+      context.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      context.height = image.height;
+      context.width = image.width;
+      context.drawImage(image, 0, 0, context.width, context.height);
+    };
+  }
 
   function sendMessageToServer(message) {
     if (socket) {
@@ -154,7 +173,8 @@ export default function Home() {
     <Box p="10">
       <Flex gap="10" className="flex-col lg:flex-row">
         <Flex flexDirection="column" className="capitalize lg:w-1/2 xl:w-1/3" gap="4">
-          <Image src={cameraFeed || '/loading.jpg'} alt="Security Camera" className="" />
+          {/* <Image src={cameraFeed || '/loading.jpg'} alt="Security Camera" className="" /> */}
+          <canvas ref={canvasRef} width="720" height="480"></canvas>
           <Box>
             <Text className="text-3xl font-bold">Show Message</Text>
             <Text className="pb-2 normal-case">Display a message with a timeout. 0 is no timeout.</Text>

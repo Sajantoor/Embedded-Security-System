@@ -57,7 +57,7 @@ UdpMessage* Socket::receive(void) {
     return new UdpMessage(message, ip, ntohs(clientAddress.sin_port));
 }
 
-void Socket::send(UdpMessage* message) {
+void Socket::send(Udp* message) {
     // Get the address of the server
     struct sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
@@ -65,8 +65,8 @@ void Socket::send(UdpMessage* message) {
     inet_pton(AF_INET, message->getIp().c_str(), &serverAddress.sin_addr);
 
     // Send a message to the server
-    int bytesSent = sendto(this->socketFd, message->getMessage().c_str(), message->getMessage().size(), 0,
-                           (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+    int bytesSent = sendto(this->socketFd, message->getData(), message->getSize(), 0, (struct sockaddr*)&serverAddress,
+                           sizeof(serverAddress));
 
     if (bytesSent == -1) {
         std::cerr << "Failed to send message" << std::endl;
@@ -83,6 +83,12 @@ void Socket::stopRecieving(void) {
 
 void Socket::sendToWebServer(std::string message) {
     UdpMessage* udpMessage = new UdpMessage(message, "192.168.6.1", 7070);
+    this->send(udpMessage);
+    delete udpMessage;
+}
+
+void Socket::sendDataToWebServer(const void* data, unsigned int size) {
+    UdpStream* udpMessage = new UdpStream(data, size, IP_ADDRESS_STREAMING, PORT_STREAMING);
     this->send(udpMessage);
     delete udpMessage;
 }

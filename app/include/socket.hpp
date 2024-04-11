@@ -12,28 +12,52 @@
 static constexpr const int BUFFER_SIZE = 1024;
 static constexpr const int PORT = 12345;
 
+static const std::string IP_ADDRESS_STREAMING = "192.168.6.1";
+static constexpr int PORT_STREAMING = 1234;
+
 /**
  * Represents a message that is sent or recieved from the UDP socket.
  * Contains the message, the ip address of the sender and the port of the
  * sender.
  */
-class UdpMessage {
-  public:
-    UdpMessage(std::string message, std::string ip, unsigned int port) {
-        this->message = message;
-        this->ip = ip;
-        this->port = port;
-    }
+class Udp {
+  protected:
+    std::string ip;
+    unsigned int port;
 
-    std::string getMessage(void) { return message; }
+  public:
+    Udp(std::string ip, unsigned int port) : ip(ip), port(port) {}
     std::string getIp(void) { return ip; }
     unsigned int getPort(void) { return port; }
+    virtual const void* getData(void) = 0;
+    virtual unsigned int getSize(void) = 0;
+    virtual ~Udp() {}  //Needed for delete
+};
+
+class UdpMessage : public Udp {
+  public:
+    UdpMessage(std::string message, std::string ip, unsigned int port) : Udp(ip, port), message(message) {}
+
+    const void* getData(void) override { return message.c_str(); }
+    std::string getMessage(void) { return message; }
+    unsigned int getSize(void) override { return message.size(); }
     void setMessage(std::string message) { this->message = message; }
 
   private:
     std::string message;
-    std::string ip;
-    unsigned int port;
+};
+
+class UdpStream : public Udp {
+  public:
+    UdpStream(const void* data, unsigned int size, std::string ip, unsigned int port)
+        : Udp(ip, port), data(data), size(size) {}
+
+    const void* getData(void) override { return data; }
+    unsigned int getSize(void) { return size; }
+
+  private:
+    const void* data;
+    unsigned int size;
 };
 
 /*
@@ -54,7 +78,7 @@ class Socket {
     /**
      * Sends a message
      */
-    void send(UdpMessage* message);
+    void send(Udp* message);
     /**
      * Returns true if the socket is currently recieving messages.
      */
@@ -68,6 +92,8 @@ class Socket {
      * Sends a message to the web server
     */
     void sendToWebServer(std::string message);
+
+    void sendDataToWebServer(const void* data, unsigned int size);
 
   private:
     int socketFd;
