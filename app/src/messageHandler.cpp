@@ -15,11 +15,13 @@ MessageHandler::MessageHandler(Socket* socket, Relay* relay, Password* password,
 }
 
 void MessageHandler::handleLock(void) {
+    displayManager->displayMessage("Locking door...", DISPLAY_TIME, false);
     notifier->notify(DOOR_CLOSED);
     relay->close();
 }
 
 void MessageHandler::handleUnlock(void) {
+    displayManager->displayMessage("Opening door...", DISPLAY_TIME, false);
     notifier->notify(DOOR_OPEN);
     relay->open();
 }
@@ -35,6 +37,7 @@ void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
     const std::string newPassword = arguments[1];
 
     if (password->changePassword(currentPassword, newPassword)) {
+        displayManager->displayMessage("Password changed", DISPLAY_TIME, false);
         notifier->notify(PASSWORD_CHANGED);
     } else {
         notifier->notify(FAILED_PASSWORD, "Incorrect password");
@@ -56,6 +59,7 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
 }
 
 void MessageHandler::handleShutdown(void) {
+    displayManager->displayMessage("Shutting down...", DISPLAY_TIME, false);
     isRunning = false;
     shutdownHandler->shutdown();
 }
