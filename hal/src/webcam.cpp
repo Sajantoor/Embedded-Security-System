@@ -34,10 +34,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <thread>
 
 #include "../../app/include/socket.hpp"
 
-Socket* streamSocket;
+static Socket* streamSocket;
+static std::thread streamThread;
+static bool isRunning = false;
 
 // Initialize UDP connection
 void openConnectionT() {
@@ -51,7 +54,6 @@ void sendResponseT(const void* str, int size) {
 
 // Close udp connection
 void closeConnectionT() {
-    // close(socketDescriptorT);
     std::cout << "Closing connection\n";
 }
 
@@ -92,13 +94,10 @@ static int xioctl(int fh, int request, void* arg) {
     return r;
 }
 
-size_t length;
 static void process_image(const void* p, int size) {
     if (out_buf) {
         sendResponseT(p, size);
     }
-
-    // fflush(stderr);
 }
 
 static int read_frame(void) {
@@ -195,8 +194,8 @@ static void mainloop(void) {
     if (frame_count == 0) {};  // infinite loop
     // count = frame_count;
 
-    while (true) {
-        for (;;) {
+    while (isRunning) {
+        while (isRunning) {
             fd_set fds;
             struct timeval tv;
             int r;
@@ -553,26 +552,39 @@ static void open_device(void) {
 
 int startStream() {
     std::cout << "Starting streaming\n";
-    openConnectionT();
 
-    // Initialize other variables and setup
+    streamThread = std::thread([] {
+        openConnectionT();
+        isRunning = true;
 
-    force_format = 2;
-    out_buf++;
+        // Initialize other variables and setup
 
-    frame_count = 0;
+        force_format = 2;
+        out_buf++;
 
-    open_device();
-    init_device();
-    start_capturing();
-    std::cout << "Starting main loop\n";
-    mainloop();
-    std::cout << "End main loop\n";
-    stop_capturing();
-    uninit_device();
-    close_device();
-    std::cerr << "\n";
-    closeConnectionT();
-    std::cout << "Ending streaming\n";
+        frame_count = 0;
+
+        open_device();
+        init_device();
+        start_capturing();
+        std::cout << "Starting main loop\n";
+
+        // put this in the thread
+        // streamThread = std::thread(mainloop);
+        mainloop();
+
+        std::cout << "End main loop\n";
+        stop_capturing();
+        uninit_device();
+        close_device();
+        std::cerr << "\n";
+        std::cout << "Ending streaming\n";
+    });
+
     return 0;
+}
+
+void stopStream() {
+    isRunning = false;
+    streamThread.join();
 }

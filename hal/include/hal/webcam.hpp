@@ -2,5 +2,6 @@
 #define _WEBCAM_HPP_
 
 void startStream();
+void stopStream();
 
 #endif
