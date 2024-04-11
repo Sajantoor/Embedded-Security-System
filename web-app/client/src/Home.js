@@ -186,7 +186,6 @@ export default function Home() {
                 placeholder="Enter message"
                 value={displayMessage}
                 onChange={(e) => setDisplayMessage(e.target.value)}
-                maxLength={80}
                 className="w-1/2"
               />
               <NumberInput min={0} value={timeout} onChange={setTimeout} className="w-1/2">
