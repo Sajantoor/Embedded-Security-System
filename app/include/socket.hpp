@@ -15,6 +15,9 @@ static constexpr const int PORT = 12345;
 static const std::string IP_ADDRESS_STREAMING = "192.168.6.1";
 static constexpr int PORT_STREAMING = 1234;
 
+static const std::string IP_ADDRESS_SERVER = "192.168.6.1";
+static constexpr int PORT_SERVER = 7070;
+
 /**
  * Represents a message that is sent or recieved from the UDP socket.
  * Contains the message, the ip address of the sender and the port of the
