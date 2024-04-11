@@ -93,7 +93,7 @@ webSocketServer.on('connection', (socket) => {
 
     socket.emit('event', {
       message: parsedMessage.message,
-      epochTime: parseMessage.epochTime,
+      epochTime: parsedMessage.epochTime,
       image: getCurrentFrame()
     });
   });
