@@ -245,18 +245,24 @@ export default function Home() {
                 placeholder="Enter current password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="number"
+                type="password"
+                pattern="[0-8]*"
+                inputmode="numeric"
               />
               <Flex gap={2}>
                 <Input
                   placeholder="Enter new password"
-                  type="number"
+                  type="password"
+                  pattern="[0-8]*"
+                  inputmode="numeric"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <Input
                   placeholder="Confirm new password"
-                  type="number"
+                  type="password"
+                  pattern="[0-8]*"
+                  inputmode="numeric"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
