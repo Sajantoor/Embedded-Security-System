@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _SURVEILLANCE_HPP_
+#define _SURVEILLANCE_HPP_
 
 #include <thread>
 
@@ -28,3 +29,5 @@ class Surveillance {
     std::thread* thread;
     bool isRunning;
 };
+
+#endif
