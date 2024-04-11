@@ -29,23 +29,21 @@ const CHANGE_PASSWORD_COMMAND = 'changePassword';
 const SHUTDOWN = 'shutdown';
 
 export default function Home() {
-  const [cameraStatus, setCameraStatus] = useState('offline');
   const [systemStatus, setSystemStatus] = useState('shutdown');
   const [lockStatus, setLockStatus] = useState('locked');
-  const [cameraFeed, setCameraFeed] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [displayMessage, setDisplayMessage] = useState('');
   const [currentMessage, setCurrentMessage] = useState('');
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [timeout, setTimeout] = useState(5);
+  const [displayTimeout, setDisplayTimeout] = useState(0);
   const [socket, setSocket] = useState(null);
   const [uptime, setUptime] = useState(0);
   const [events, setEvents] = useState([]);
-  // most likely not going to use this
-  const [errors, setErrors] = useState(['System is overheating', 'Camera is offline', 'Lock is jammed']);
+  const [errors, setErrors] = useState([]);
   const canvasRef = useRef(null);
+  let timeout;
 
   useEffect(() => {
     const url = 'http://localhost:4000';
@@ -62,6 +60,7 @@ export default function Home() {
       const date = new Date(0);
       date.setUTCSeconds(event.epochTime);
       event.timestamp = date;
+
       if (!event.image) {
         event.image = '/loading.jpg';
       }
@@ -72,15 +71,33 @@ export default function Home() {
       } else if (event.message.includes('Door Closed')) {
         setLockStatus('locked');
       } else if (event.message.includes('Display Message Set')) {
-        setCurrentMessage(displayMessage);
+        return;
       }
 
-      setEvents((prevEvents) => [...prevEvents, event]);
+      setEvents((prevEvents) => [event, ...prevEvents]);
     });
 
-    socket.on('uptime', (uptime) => {
+    socket.on('heartbeat', (heartbeat) => {
+      // message has the format [heartbeat] [timestamp] [uptime (in seconds)] [currentMessage]
+      clearTimeout(timeout);
+
+
+      const tokens = heartbeat.split(' ');
+      const epochTime = parseInt(tokens[1]);
+      const uptime = parseInt(tokens[2]);
+      const currentMessage = tokens.slice(3).join(' ');
+
+      const date = new Date(0);
+      date.setUTCSeconds(epochTime);
+      setLastUpdated(date);
       setUptime(uptime);
-      setSystemStatus('online');
+      setCurrentMessage(currentMessage);
+      setSystemStatus('Online');
+      setErrors([]);
+
+      timeout = setTimeout(() => {
+        systemDown();
+      }, 3000);
     });
 
     socket.on("canvas", (data) => {
@@ -93,8 +110,13 @@ export default function Home() {
     };
   }, []);
 
+  function systemDown() {
+    setSystemStatus('Offline');
+    setErrors(['System is down!']);
+    setUptime('N/A');
+  }
+
   function drawCanvas(data) {
-    setCameraStatus("online");
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     const image = new window.Image();
@@ -116,7 +138,6 @@ export default function Home() {
 
   function handleLockToggle() {
     const newLockStatus = lockStatus === 'locked' ? 'unlocked' : 'locked';
-    setLockStatus(newLockStatus);
 
     if (newLockStatus === 'locked') {
       sendMessageToServer(LOCK_COMMAND);
@@ -131,8 +152,8 @@ export default function Home() {
     }
 
     let timeoutValue = 0;
-    if (timeout) {
-      timeoutValue = parseInt(timeout);
+    if (displayTimeout) {
+      timeoutValue = parseInt(displayTimeout);
     }
 
     if (timeoutValue > 0) {
@@ -141,7 +162,7 @@ export default function Home() {
       sendMessageToServer(`${DISPLAY_COMMAND} 0 ${displayMessage}`);
     }
 
-    setTimeout(0);
+    setDisplayTimeout(0);
     setDisplayMessage('');
   }
 
@@ -169,7 +190,24 @@ export default function Home() {
 
   function handleShutdown() {
     sendMessageToServer(SHUTDOWN);
-    setSystemStatus('shutdown');
+  }
+
+  function showUptime() {
+    const seconds = uptime % 60;
+    const minutes = Math.floor(uptime / 60) % 60;
+    const hours = Math.floor(uptime / 3600) % 24;
+    const days = Math.floor(uptime / 86400);
+
+    // if fields are zero don't show them
+    if (days === 0 && hours === 0 && minutes === 0) {
+      return `${seconds}s`;
+    } else if (days === 0 && hours === 0) {
+      return `${minutes}m ${seconds}s`;
+    } else if (days === 0) {
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
 
   return (
@@ -188,7 +226,7 @@ export default function Home() {
                 onChange={(e) => setDisplayMessage(e.target.value)}
                 className="w-1/2"
               />
-              <NumberInput min={0} value={timeout} onChange={setTimeout} className="w-1/2">
+              <NumberInput min={0} value={displayTimeout} onChange={setDisplayTimeout} className="w-1/2">
                 <NumberInputField />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
@@ -208,18 +246,24 @@ export default function Home() {
                 placeholder="Enter current password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                type="number"
+                type="password"
+                pattern="[0-8]*"
+                inputmode="numeric"
               />
               <Flex gap={2}>
                 <Input
                   placeholder="Enter new password"
-                  type="number"
+                  type="password"
+                  pattern="[0-8]*"
+                  inputmode="numeric"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
                 <Input
                   placeholder="Confirm new password"
-                  type="number"
+                  type="password"
+                  pattern="[0-8]*"
+                  inputmode="numeric"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -238,13 +282,10 @@ export default function Home() {
               <span className="font-bold">System:</span> {systemStatus}
             </Text>
             <Text className="text-3xl">
-              <span className="font-bold">Camera:</span> {cameraStatus}
-            </Text>
-            <Text className="text-3xl">
               <span className="font-bold">Lock:</span> {lockStatus}
             </Text>
             <Text className="text-3xl">
-              <span className="font-bold">Message:</span> {currentMessage || 'None'}
+              <span className="font-bold">Current Message:</span> {currentMessage || 'None'}
             </Text>
           </div>
           <div>
@@ -252,7 +293,7 @@ export default function Home() {
               <span className="font-bold">Last updated:</span> {lastUpdated.toLocaleString()}
             </Text>
             <Text>
-              <span className="font-bold">Uptime:</span> {uptime}s
+              <span className="font-bold">Uptime:</span> {!isNaN(uptime) ? showUptime(uptime) : uptime}
             </Text>
             <Flex gap="2" className="items-center">
               <Text className="font-bold">Toggle Lock</Text>
@@ -273,7 +314,7 @@ export default function Home() {
           <div>
             <Text className="text-3xl font-bold pb-2">Recent Events</Text>
             {events.length ? (
-              events.slice(-10).map((event, index) => (
+              events.slice(0, 10).map((event, index) => (
                 <Accordion key={index} allowToggle>
                   <AccordionItem>
                     <h2>

@@ -3,37 +3,59 @@
 #include <thread>
 #include "common/utils.hpp"
 
-DisplayManager::DisplayManager(LCD& lcd, Keypad& keypad) : lcd(lcd), keypad(keypad) {}
+DisplayManager::DisplayManager(LCD* lcd, Keypad* keypad, Relay* relay) : lcd(lcd), keypad(keypad), relay(relay) {}
 
 void DisplayManager::displayMessage(std::string message, unsigned int timeoutInMs, bool requireKeypadInput) {
-    if (message == prevMsg) { return; }
+    if (message == currentMessage) {
+        return;
+    }
 
-    lcd.displayToLCD(message);
-    prevMsg = message;
+    if (wasRequiringInput) {
+        return;
+    }
+
+    lcd->displayToLCD(message);
+    currentMessage = message;
 
     if (timeoutInMs > 0) {
         std::thread([this, timeoutInMs] {
             sleepForMs(timeoutInMs);
-            lcd.clearDisplay();
+            lcd->clearDisplay();
+            wasRequiringInput = false;
+            showDefaultMessage();
         }).detach();
     } else if (requireKeypadInput) {
-        keypad.startInput();
+        wasRequiringInput = true;
+        keypad->startInput();
         std::string prevInput = "";
 
         while (isRunning) {
-            std::string input = keypad.getInput();
+            std::string input = keypad->getInput();
             if (input != prevInput) {
-                lcd.displayToLCD(input);
+                lcd->displayToLCD(input);
                 prevInput = input;
-            } else if (keypad.isInputComplete()) {
-                std::string completeInput = keypad.getInput();
-                lcd.displayToLCD(completeInput);
+            } else if (keypad->isInputComplete()) {
+                std::string completeInput = keypad->getInput();
+                lcd->displayToLCD(completeInput);
+                wasRequiringInput = false;
                 break;
             }
         }
     }
 }
 
+void DisplayManager::showDefaultMessage() {
+    if (relay->isOpen()) {
+        displayMessage("Door is open", 0, false);
+    } else {
+        displayMessage("Door is closed", 0, false);
+    }
+}
+
 void DisplayManager::stop() {
     isRunning = false;
+}
+
+std::string DisplayManager::getCurrentMessage() {
+    return currentMessage;
 }

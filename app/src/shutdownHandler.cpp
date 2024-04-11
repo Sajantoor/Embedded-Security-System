@@ -3,13 +3,14 @@
 #include "hal/webcam.hpp"
 
 ShutdownHandler::ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
-                                 Surveillance* surveillance, Webcam* webcam)
+                                 Surveillance* surveillance, Webcam* webcam, Heartbeat* heartbeat)
     : lcd(lcd),
       keypad(keypad),
       displayManager(displayManager),
       buzzer(buzzer),
       surveillance(surveillance),
-      webcam(webcam) {}
+      webcam(webcam),
+      heartbeat(heartbeat) {}
 
 void ShutdownHandler::shutdown(void) {
     lcd->stop();
@@ -18,6 +19,7 @@ void ShutdownHandler::shutdown(void) {
     displayManager->stop();
     surveillance->stop();
     webcam->stopStream();
+    heartbeat->stop();
     isRunning = false;
 }
 

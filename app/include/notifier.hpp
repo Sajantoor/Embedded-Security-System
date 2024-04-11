@@ -19,7 +19,8 @@ typedef enum {
     PASSWORD_SET,
     PASSWORD_CHANGE_FAILED,
     DISPLAY_MESSAGE_SET,
-    DISPLAY_MESSAGE_FAILED
+    DISPLAY_MESSAGE_FAILED,
+    HEARTBEAT
 } NotificationType;
 
 class Notifier {

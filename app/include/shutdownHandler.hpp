@@ -10,6 +10,7 @@ Provides the shutdown state and shuts down the system.
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 #include "hal/webcam.hpp"
+#include "heartbeat.hpp"
 #include "surveillance.hpp"
 
 class ShutdownHandler {
@@ -19,12 +20,13 @@ class ShutdownHandler {
     DisplayManager* displayManager;
     Buzzer* buzzer;
     Surveillance* surveillance;
-    bool isRunning = true;
     Webcam* webcam;
+    Heartbeat* heartbeat;
+    bool isRunning = true;
 
   public:
     ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
-                    Surveillance* surveillance, Webcam* webcam);
+                    Surveillance* surveillance, Webcam* webcam, Heartbeat* heartbeat);
     void shutdown(void);
     bool isShutdown(void);
 };
