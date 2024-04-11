@@ -11,6 +11,7 @@
 #include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
 #include "hal/webcam.hpp"
+#include "heartbeat.hpp"
 #include "main.hpp"
 #include "messageHandler.hpp"
 #include "notifier.hpp"
@@ -18,7 +19,6 @@
 #include "shutdownHandler.hpp"
 #include "socket.hpp"
 #include "surveillance.hpp"
-
 
 int main(void) {
     std::cout << "Initializing hardware" << std::endl;
@@ -34,7 +34,8 @@ int main(void) {
     Notifier notifier(&socket);
     MotionSensor motionSensor;
     Surveillance surveillance(&motionSensor, &notifier);
-    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer, &surveillance);
+    Heartbeat heartbeat(&notifier, &displayManager);
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer, &surveillance, &heartbeat);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
 
     std::cout << "Initialization finished, starting program" << std::endl;

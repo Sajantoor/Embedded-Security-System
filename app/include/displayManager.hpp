@@ -21,7 +21,7 @@ class DisplayManager {
     LCD* lcd;
     Keypad* keypad;
     Relay* relay;
-    std::string prevMsg = "";
+    std::string currentMessage = "";
     bool isRunning = true;
     bool wasRequiringInput = false;
     // Display default message based on the state of the relay
@@ -36,6 +36,9 @@ class DisplayManager {
     void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
     // Sets isRunning to false
     void stop();
+
+    // Returns the current message on the display
+    std::string getCurrentMessage();
 };
 
 #endif

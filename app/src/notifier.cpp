@@ -40,6 +40,9 @@ void Notifier::notify(NotificationType type, std::string message) {
         case DISPLAY_MESSAGE_FAILED:
             socket->sendToWebServer("displayMessageFailed " + timestamp + " " + message);
             break;
+        case HEARTBEAT:
+            socket->sendToWebServer("heartbeat " + timestamp + " " + message);
+            break;
         default:
             break;
     }
