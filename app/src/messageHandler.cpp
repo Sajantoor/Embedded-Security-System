@@ -41,7 +41,7 @@ void MessageHandler::handleChangePassword(std::vector<std::string> arguments) {
 }
 
 void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments) {
-    if (arguments.size() < 1) {
+    if (arguments.size() < 2) {
         notifier->notify(DISPLAY_MESSAGE_FAILED, "Invalid number of arguments");
         return;
     }

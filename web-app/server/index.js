@@ -133,9 +133,4 @@ function handleMessage(message, socket) {
       epochTime,
     });
   }
-
-  // socket.emit('event', {
-  //   message,
-  //   epochTime,
-  // });
 }
