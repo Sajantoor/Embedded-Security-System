@@ -111,8 +111,8 @@ export default function Home() {
   }, []);
 
   function systemDown() {
-    setSystemStatus('down');
-    setErrors((prevErrors) => ['System is down!']);
+    setSystemStatus('Offline');
+    setErrors(['System is down!']);
   }
 
   function drawCanvas(data) {
@@ -189,7 +189,6 @@ export default function Home() {
 
   function handleShutdown() {
     sendMessageToServer(SHUTDOWN);
-    setSystemStatus('shutdown');
   }
 
   function showUptime() {
