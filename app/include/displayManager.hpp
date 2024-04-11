@@ -8,13 +8,15 @@ These messages disappear when the keypad is pressed, showing keypad input.
 #define _DISPLAY_MANAGER_HPP_
 
 #include <stdbool.h>
+#include <atomic>
 #include <string>
+#include <thread>
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
 #include "hal/relay.hpp"
 
 #define DISPLAY_TIME 2000
-#define ERROR_DISPLAY_TIME 10000
+#define ERROR_DISPLAY_TIME 15000
 
 class DisplayManager {
   private:
@@ -24,8 +26,13 @@ class DisplayManager {
     std::string currentMessage = "";
     bool isRunning = true;
     bool wasRequiringInput = false;
+    std::thread displayManagerThread;
+    std::atomic<long long> currentTimeout = 0;
     // Display default message based on the state of the relay
     void showDefaultMessage(void);
+
+    void clearDisplayAfterTimeout(long long timeoutInMs);
+    void run(void);
 
   public:
     DisplayManager(LCD* lcd, Keypad* keypad, Relay* relay);
@@ -33,7 +40,7 @@ class DisplayManager {
     // Display a message on the LCD screen
     // If timeout is set, the message will be cleared after the timeout
     // If requireKeypadInput is set to true, keypad input will replace the message
-    void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
+    void displayMessage(std::string message, long long timeoutInMs = 0, bool requireKeypadInput = false);
     // Sets isRunning to false
     void stop();
 

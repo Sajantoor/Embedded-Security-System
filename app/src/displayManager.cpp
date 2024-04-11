@@ -1,11 +1,14 @@
 #include "displayManager.hpp"
 #include <string>
-#include <thread>
 #include "common/utils.hpp"
 
-DisplayManager::DisplayManager(LCD* lcd, Keypad* keypad, Relay* relay) : lcd(lcd), keypad(keypad), relay(relay) {}
+DisplayManager::DisplayManager(LCD* lcd, Keypad* keypad, Relay* relay) : lcd(lcd), keypad(keypad), relay(relay) {
+    isRunning = true;
+    currentTimeout = 0;
+    displayManagerThread = std::thread(&DisplayManager::run, this);
+}
 
-void DisplayManager::displayMessage(std::string message, unsigned int timeoutInMs, bool requireKeypadInput) {
+void DisplayManager::displayMessage(std::string message, long long timeoutInMs, bool requireKeypadInput) {
     if (message == currentMessage) {
         return;
     }
@@ -18,12 +21,7 @@ void DisplayManager::displayMessage(std::string message, unsigned int timeoutInM
     currentMessage = message;
 
     if (timeoutInMs > 0) {
-        std::thread([this, timeoutInMs] {
-            sleepForMs(timeoutInMs);
-            lcd->clearDisplay();
-            wasRequiringInput = false;
-            showDefaultMessage();
-        }).detach();
+        clearDisplayAfterTimeout(timeoutInMs);
     } else if (requireKeypadInput) {
         wasRequiringInput = true;
         keypad->startInput();
@@ -54,8 +52,30 @@ void DisplayManager::showDefaultMessage() {
 
 void DisplayManager::stop() {
     isRunning = false;
+    displayManagerThread.join();
 }
 
 std::string DisplayManager::getCurrentMessage() {
     return currentMessage;
+}
+
+void DisplayManager::clearDisplayAfterTimeout(long long timeoutInMs) {
+    currentTimeout.store(timeoutInMs);
+}
+
+void DisplayManager::run() {
+    while (isRunning) {
+        if (currentTimeout > 0) {
+            while (isRunning && currentTimeout > 0) {
+                sleepForMs(1000);
+                currentTimeout -= 1000;
+            }
+
+            lcd->clearDisplay();
+
+            if (isRunning) {
+                showDefaultMessage();
+            }
+        }
+    }
 }
