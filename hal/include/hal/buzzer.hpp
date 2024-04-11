@@ -1,33 +1,28 @@
 #ifndef _BUZZER_HPP_
 #define _BUZZER_HPP_
 
+#include <atomic>
 #include <functional>
 #include <thread>
 
-enum BuzzerSounds { HIT, MISS, NONE };
-
 class Buzzer {
-   private:
+  private:
     void updatePwm(unsigned int period, unsigned int dutyCycle);
-    void playHitSound(void);
-    void playMissSound(void);
-    bool sleepWhileCheckingConditon(std::function<bool()> condition,
-                                    int timeoutMs);
-    bool isStopped;
-    BuzzerSounds currentSound;
+    std::atomic<bool> playSound = false;
+    bool isStopped = false;
     std::thread buzzerThread;
 
-   public:
+  public:
     Buzzer(void);
 
     // stops the buzzer thread
     void stop(void);
 
     // turns off the buzzer sound
-    void disableBuzzerSound(bool shouldSetSoundToNone = true);
+    void disableBuzzerSound();
 
-    // plays a buzzer sound
-    void buzz(BuzzerSounds sound);
+    // plays the buzzer sound
+    void buzz();
 };
 
 #endif

@@ -4,10 +4,10 @@
 
 #include "common/utils.hpp"
 #include "displayManager.hpp"
+#include "hal/buzzer.hpp"
 #include "hal/joystick.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
-#include "hal/led.hpp"
 #include "hal/motionSensor.hpp"
 #include "hal/relay.hpp"
 #include "hal/webcam.hpp"
@@ -19,6 +19,7 @@
 
 int main(void) {
     // Init hardware
+    std::cout << "Initializing hardware" << std::endl;
     Relay relay;
     Keypad keypad(4);
     JoyStick joystick;
@@ -26,13 +27,18 @@ int main(void) {
     DisplayManager displayManager(lcd, keypad);
     Password password;
     Socket socket;
-    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager);
+    Buzzer buzzer;
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer);
     Notifier notifier(&socket);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
+    std::cout << "Initialization finished, starting program" << std::endl;
+    startStream();
 
     // Close the relay and start stream at the start of the program
     relay.close();
-    startStream();
+    displayManager.displayMessage("Door is closed", 0, false);
+
+    bool wasDoorOpen = false;
 
     // initialize password
     if (!password.doesPasswordExist()) {
@@ -43,11 +49,14 @@ int main(void) {
     }
 
     int failedPasswordAttempts = 0;
+
     while (!shutdownHandler.isShutdown()) {
-        if (relay.isOpen()) {
+        if (relay.isOpen() && !wasDoorOpen) {
             displayManager.displayMessage("Door is open", 0, false);
-        } else {
+            wasDoorOpen = true;
+        } else if (!relay.isOpen() && wasDoorOpen) {
             displayManager.displayMessage("Door is closed", 0, false);
+            wasDoorOpen = false;
         }
 
         // if joystick is pressed and door is closed, enter the password.
@@ -63,6 +72,7 @@ int main(void) {
             } else {
                 displayManager.displayMessage("Password incorrect", 0, false);
                 failedPasswordAttempts++;
+                buzzer.buzz();
 
                 if (failedPasswordAttempts >= 3) {
                     std::string message =
@@ -70,12 +80,13 @@ int main(void) {
 
                     displayManager.displayMessage(message, 0, false);
                     notifier.notify(FAILED_PASSWORD, message);
+                    sleepForMs(5000);
                 }
 
                 // disable at 5 failed password attempts
                 if (failedPasswordAttempts >= 5) {
                     displayManager.displayMessage("System disabled for 2 minutes", 0, false);
-                    sleepForMs(1000 * 2 * 60);
+                    sleepWhileCheckingConditon([&] { return !shutdownHandler.isShutdown(); }, 1000 * 2 * 60);
                 }
             }
 
@@ -104,6 +115,7 @@ int main(void) {
             } else {
                 displayManager.displayMessage("Password incorrect. try again", 0, false);
                 notifier.notify(PASSWORD_CHANGE_FAILED, "Incorrect password");
+                buzzer.buzz();
             }
 
             sleepForMs(1000);

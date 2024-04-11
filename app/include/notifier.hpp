@@ -1,3 +1,7 @@
+/*
+Sends notifications to the web server.
+*/
+
 #ifndef __NOTIFIER_HPP_
 #define __NOTIFIER_HPP_
 

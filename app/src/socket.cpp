@@ -82,7 +82,7 @@ void Socket::stopRecieving(void) {
 }
 
 void Socket::sendToWebServer(std::string message) {
-    UdpMessage* udpMessage = new UdpMessage(message, "127.0.0.1", 7070);
+    UdpMessage* udpMessage = new UdpMessage(message, "192.168.6.1", 7070);
     this->send(udpMessage);
     delete udpMessage;
 }
