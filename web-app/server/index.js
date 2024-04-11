@@ -84,11 +84,15 @@ function startFFMpegProcess() {
     "-re",
     "-y",
     "-i",
-    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_STREAMING_PORT}`,
+    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_STREAMING_PORT}?overrun_nonfatal=1`,
     "-preset",
     "ultrafast",
     "-f",
     "mjpeg",
+    "-tune",
+    "zerolatency",
+    "-omit_video_pes_length",
+    "1",
     "pipe:1"
   ];
 
@@ -196,6 +200,7 @@ function handleMessage(message, socket) {
     socket.emit('event', {
       message,
       epochTime,
+      image: getCurrentFrame()
     });
   }
 }

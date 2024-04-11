@@ -58,10 +58,13 @@ export default function Home() {
     });
 
     socket.on('event', (event) => {
+      console.log(event);
       const date = new Date(0);
       date.setUTCSeconds(event.epochTime);
       event.timestamp = date;
-      event.image = '/loading.jpg';
+      if (!event.image) {
+        event.image = '/loading.jpg';
+      }
 
       // if the event message contains 'door open' or 'door close', setDoorStatus
       if (event.message.includes('Door Opened')) {
@@ -183,7 +186,6 @@ export default function Home() {
                 placeholder="Enter message"
                 value={displayMessage}
                 onChange={(e) => setDisplayMessage(e.target.value)}
-                maxLength={80}
                 className="w-1/2"
               />
               <NumberInput min={0} value={timeout} onChange={setTimeout} className="w-1/2">

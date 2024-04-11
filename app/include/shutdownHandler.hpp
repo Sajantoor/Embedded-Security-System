@@ -9,6 +9,7 @@ Provides the shutdown state and shuts down the system.
 #include "hal/buzzer.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
+#include "surveillance.hpp"
 
 class ShutdownHandler {
   private:
@@ -16,10 +17,11 @@ class ShutdownHandler {
     Keypad* keypad;
     DisplayManager* displayManager;
     Buzzer* buzzer;
+    Surveillance* surveillance;
     bool isRunning = true;
 
   public:
-    ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer);
+    ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer, Surveillance* surveillance);
     void shutdown(void);
     bool isShutdown(void);
 };

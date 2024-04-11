@@ -16,6 +16,7 @@
 #include "password.hpp"
 #include "shutdownHandler.hpp"
 #include "socket.hpp"
+#include "surveillance.hpp"
 
 int main(void) {
     // Init hardware
@@ -28,8 +29,10 @@ int main(void) {
     Password password;
     Socket socket;
     Buzzer buzzer;
-    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer);
     Notifier notifier(&socket);
+    MotionSensor motionSensor;
+    Surveillance surveillance(&motionSensor, &notifier);
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer, &surveillance);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
     std::cout << "Initialization finished, starting program" << std::endl;
     startStream();
