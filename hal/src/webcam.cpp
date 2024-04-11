@@ -37,6 +37,7 @@
 #include <thread>
 
 #include "../../app/include/socket.hpp"
+#include "hal/webcam.hpp"
 
 static Socket* streamSocket;
 static std::thread streamThread;
@@ -550,7 +551,7 @@ static void open_device(void) {
     }
 }
 
-int startStream() {
+void Webcam::startStream() {
     std::cout << "Starting streaming\n";
 
     streamThread = std::thread([] {
@@ -567,24 +568,17 @@ int startStream() {
         open_device();
         init_device();
         start_capturing();
-        std::cout << "Starting main loop\n";
 
-        // put this in the thread
-        // streamThread = std::thread(mainloop);
         mainloop();
 
-        std::cout << "End main loop\n";
-        stop_capturing();
-        uninit_device();
-        close_device();
-        std::cerr << "\n";
         std::cout << "Ending streaming\n";
     });
-
-    return 0;
 }
 
-void stopStream() {
+void Webcam::stopStream() {
     isRunning = false;
     streamThread.join();
+    stop_capturing();
+    uninit_device();
+    close_device();
 }

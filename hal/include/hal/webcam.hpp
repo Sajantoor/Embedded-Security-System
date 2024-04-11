@@ -1,7 +1,13 @@
 #ifndef _WEBCAM_HPP_
 #define _WEBCAM_HPP_
 
-void startStream();
-void stopStream();
+
+class Webcam{
+public:
+    void startStream(void);
+    void stopStream(void);
+
+};
+
 
 #endif
