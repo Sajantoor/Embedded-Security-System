@@ -4,7 +4,12 @@
 
 ShutdownHandler::ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
                                  Surveillance* surveillance, Webcam* webcam)
-    : lcd(lcd), keypad(keypad), displayManager(displayManager), buzzer(buzzer), surveillance(surveillance), webcam(webcam) {}
+    : lcd(lcd),
+      keypad(keypad),
+      displayManager(displayManager),
+      buzzer(buzzer),
+      surveillance(surveillance),
+      webcam(webcam) {}
 
 void ShutdownHandler::shutdown(void) {
     lcd->stop();

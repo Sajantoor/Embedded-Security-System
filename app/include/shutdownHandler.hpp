@@ -9,8 +9,8 @@ Provides the shutdown state and shuts down the system.
 #include "hal/buzzer.hpp"
 #include "hal/keypad.hpp"
 #include "hal/lcd.hpp"
-#include "surveillance.hpp"
 #include "hal/webcam.hpp"
+#include "surveillance.hpp"
 
 class ShutdownHandler {
   private:
@@ -23,7 +23,8 @@ class ShutdownHandler {
     Webcam* webcam;
 
   public:
-    ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer, Surveillance* surveillance, Webcam* webcam);
+    ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
+                    Surveillance* surveillance, Webcam* webcam);
     void shutdown(void);
     bool isShutdown(void);
 };
