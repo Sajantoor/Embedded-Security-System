@@ -29,9 +29,13 @@ int main(void) {
     ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer);
     Notifier notifier(&socket);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
+    std::cout << "Starting program" << std::endl;
 
     // Close the relay at the start of the program
     relay.close();
+    displayManager.displayMessage("Door is closed", 0, false);
+
+    bool wasDoorOpen = false;
 
     // initialize password
     if (!password.doesPasswordExist()) {
@@ -42,11 +46,14 @@ int main(void) {
     }
 
     int failedPasswordAttempts = 0;
+
     while (!shutdownHandler.isShutdown()) {
-        if (relay.isOpen()) {
+        if (relay.isOpen() && !wasDoorOpen) {
             displayManager.displayMessage("Door is open", 0, false);
-        } else {
+            wasDoorOpen = true;
+        } else if (!relay.isOpen() && wasDoorOpen) {
             displayManager.displayMessage("Door is closed", 0, false);
+            wasDoorOpen = false;
         }
 
         // if joystick is pressed and door is closed, enter the password.
@@ -70,12 +77,13 @@ int main(void) {
 
                     displayManager.displayMessage(message, 0, false);
                     notifier.notify(FAILED_PASSWORD, message);
+                    sleepForMs(5000);
                 }
 
                 // disable at 5 failed password attempts
                 if (failedPasswordAttempts >= 5) {
                     displayManager.displayMessage("System disabled for 2 minutes", 0, false);
-                    sleepForMs(1000 * 2 * 60);
+                    sleepWhileCheckingConditon([&] { return !shutdownHandler.isShutdown(); }, 1000 * 2 * 60);
                 }
             }
 
