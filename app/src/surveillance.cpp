@@ -27,7 +27,6 @@ void Surveillance::run(void) {
         }
 
         if (motionCounter > MOTION_THRESHOLD && std::time(nullptr) - timestamp > MOTION_TIMEOUT) {
-            std::cout << "Motion detected" << std::endl;
             notifier->notify(MOTION_DETECTED);
             timestamp = std::time(nullptr);
             motionCounter = 0;
