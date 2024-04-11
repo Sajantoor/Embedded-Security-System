@@ -196,6 +196,7 @@ function handleMessage(message, socket) {
     socket.emit('event', {
       message,
       epochTime,
+      image: getCurrentFrame()
     });
   }
 }
