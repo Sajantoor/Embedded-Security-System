@@ -50,16 +50,11 @@ export default function Home() {
   useEffect(() => {
     const url = 'http://localhost:4000';
     const socket = io(url);
+    setSocket(socket);
 
-    // setSocket(socket);
     // Listen for connection event
     socket.on("connect", (socket) => {
       console.log("Connected to server");
-      setSocket(socket); // Save the socket instance
-    });
-
-    socket.on('connect', () => {
-      console.log('Connected to server');
     });
 
     socket.on('event', (event) => {

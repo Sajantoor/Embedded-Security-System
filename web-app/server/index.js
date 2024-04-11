@@ -26,6 +26,7 @@ const UDP_SERVER_PORT = 7070;
 
 const UDP_BBG_ADDRESS = '192.168.6.2';
 const UDP_BBG_PORT = 12345;
+const UDP_BBG_STREAMING_PORT = 1234;
 
 const udpServer = dgram.createSocket('udp4');
 udpServer.bind(UDP_SERVER_PORT, UDP_SERVER_ADDRESS);
@@ -83,7 +84,7 @@ function startFFMpegProcess() {
     "-re",
     "-y",
     "-i",
-    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_PORT}`,
+    `udp://${UDP_BBG_ADDRESS}:${UDP_BBG_STREAMING_PORT}`,
     "-preset",
     "ultrafast",
     "-f",
