@@ -17,6 +17,7 @@
  * this script
  * 
  * Modifications made by Sukhpal to make it compatible with C++ and Security Project for CMPT433
+ *  Global variables moved to header file as well
  */
 
 #include <arpa/inet.h>
@@ -36,56 +37,30 @@
 #include <iostream>
 #include <thread>
 
-#include "../../app/include/socket.hpp"
 #include "hal/webcam.hpp"
 
-static Socket* streamSocket;
-static std::thread streamThread;
-static bool isRunning = false;
-
 // Initialize UDP connection
-void openConnectionT() {
+void Webcam::openConnectionT(void) {
     streamSocket = new Socket();
 }
 
 // Send video frame using udp packet
-void sendResponseT(const void* str, int size) {
+void Webcam::sendResponseT(const void* str, int size) {
     streamSocket->sendDataToWebServer(str, size);
 }
 
 // Close udp connection
-void closeConnectionT() {
+void Webcam::closeConnectionT(void) {
     std::cout << "Closing connection\n";
+    streamSocket->closeSocket();
 }
 
-#define CLEAR(x) memset(&(x), 0, sizeof(x))
-
-enum io_method {
-    IO_METHOD_READ,
-    IO_METHOD_MMAP,
-    IO_METHOD_USERPTR,
-};
-
-struct buffer {
-    void* start;
-    size_t length;
-};
-
-static const char* dev_name = "/dev/video0";
-static enum io_method io = IO_METHOD_MMAP;
-static int fd = -1;
-struct buffer* buffers;
-static unsigned int n_buffers = 0;
-static int out_buf = 0;
-static int force_format = 0;
-static long frame_count = 100;
-
-static void errno_exit(const char* s) {
+void Webcam::errno_exit(const char* s) {
     fprintf(stderr, "%s error %d, %s\n", s, errno, strerror(errno));
     exit(EXIT_FAILURE);
 }
 
-static int xioctl(int fh, int request, void* arg) {
+int Webcam::xioctl(int fh, int request, void* arg) {
     int r;
 
     do {
@@ -95,13 +70,13 @@ static int xioctl(int fh, int request, void* arg) {
     return r;
 }
 
-static void process_image(const void* p, int size) {
+void Webcam::process_image(const void* p, int size) {
     if (out_buf) {
         sendResponseT(p, size);
     }
 }
 
-static int read_frame(void) {
+int Webcam::read_frame(void) {
     struct v4l2_buffer buf;
     unsigned int i;
 
@@ -188,12 +163,9 @@ static int read_frame(void) {
     return 1;
 }
 
-static void mainloop(void) {
-    // unsigned int count;
-    // unsigned int loopIsInfinite = 0;
+void Webcam::mainloop(void) {
 
     if (frame_count == 0) {};  // infinite loop
-    // count = frame_count;
 
     while (isRunning) {
         while (isRunning) {
@@ -226,7 +198,7 @@ static void mainloop(void) {
     }
 }
 
-static void stop_capturing(void) {
+void Webcam::stop_capturing(void) {
     enum v4l2_buf_type type;
 
     switch (io) {
@@ -242,7 +214,7 @@ static void stop_capturing(void) {
     }
 }
 
-static void start_capturing(void) {
+void Webcam::start_capturing(void) {
     unsigned int i;
     enum v4l2_buf_type type;
 
@@ -285,7 +257,7 @@ static void start_capturing(void) {
     }
 }
 
-static void uninit_device(void) {
+void Webcam::uninit_device(void) {
     unsigned int i;
 
     switch (io) {
@@ -307,7 +279,7 @@ static void uninit_device(void) {
     free(buffers);
 }
 
-static void init_read(unsigned int buffer_size) {
+void Webcam::init_read(unsigned int buffer_size) {
     buffers = (struct buffer*)calloc(1, sizeof(*buffers));
 
     if (!buffers) {
@@ -324,7 +296,7 @@ static void init_read(unsigned int buffer_size) {
     }
 }
 
-static void init_mmap(void) {
+void Webcam::init_mmap(void) {
     struct v4l2_requestbuffers req;
 
     CLEAR(req);
@@ -376,7 +348,7 @@ static void init_mmap(void) {
     }
 }
 
-static void init_userp(unsigned int buffer_size) {
+void Webcam::init_userp(unsigned int buffer_size) {
     struct v4l2_requestbuffers req;
 
     CLEAR(req);
@@ -415,7 +387,7 @@ static void init_userp(unsigned int buffer_size) {
     }
 }
 
-static void init_device(void) {
+void Webcam::init_device(void) {
     struct v4l2_capability cap;
     struct v4l2_cropcap cropcap;
     struct v4l2_crop crop;
@@ -523,13 +495,13 @@ static void init_device(void) {
     }
 }
 
-static void close_device(void) {
+void Webcam::close_device(void) {
     if (-1 == close(fd)) errno_exit("close");
 
     fd = -1;
 }
 
-static void open_device(void) {
+void Webcam::open_device(void) {
     struct stat st;
 
     if (-1 == stat(dev_name, &st)) {
@@ -554,7 +526,7 @@ static void open_device(void) {
 void Webcam::startStream() {
     std::cout << "Starting streaming\n";
 
-    streamThread = std::thread([] {
+    streamThread = std::thread([this] {
         openConnectionT();
         isRunning = true;
 
