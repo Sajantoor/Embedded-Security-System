@@ -67,8 +67,7 @@ int main(void) {
                 buzzer.buzz();
 
                 if (failedPasswordAttempts >= 3) {
-                    std::string message =
-                        "Multiple failed password attempts (" + std::to_string(failedPasswordAttempts) + ")";
+                    std::string message = "Multiple failed attempts (" + std::to_string(failedPasswordAttempts) + ")";
 
                     displayManager.displayMessage(message, ERROR_DISPLAY_TIME, false);
                     notifier.notify(FAILED_PASSWORD, message);
