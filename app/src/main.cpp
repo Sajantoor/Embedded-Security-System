@@ -68,8 +68,7 @@ int main(void) {
                 buzzer.buzz();
 
                 if (failedPasswordAttempts >= 3) {
-                    std::string message =
-                        "Multiple failed password attempts (" + std::to_string(failedPasswordAttempts) + ")";
+                    std::string message = "Multiple failed attempts (" + std::to_string(failedPasswordAttempts) + ")";
 
                     displayManager.displayMessage(message, ERROR_DISPLAY_TIME, false);
                     notifier.notify(FAILED_PASSWORD, message);
@@ -77,8 +76,7 @@ int main(void) {
 
                 // disable at 5 failed password attempts
                 if (failedPasswordAttempts >= 5) {
-                    displayManager.displayMessage("System disabled for 2 minutes", 1000 * 2 * 60, false);
-                    sleepWhileCheckingConditon([&] { return !shutdownHandler.isShutdown(); }, 1000 * 2 * 60);
+                    disableSystemMessage(&displayManager, &shutdownHandler);
                 }
             }
         }
@@ -99,6 +97,36 @@ int main(void) {
 
     messageHandler.stop();
     return 0;
+}
+
+void disableSystemMessage(DisplayManager* displayManager, ShutdownHandler* shutdownHandler) {
+    std::string message = "";
+    std::string seconds = "";
+    std::string minutes = "";
+
+    displayManager->displayMessage("System disabled for 2 minutes", 0, false);
+    shutdownHandler->disableSystem();
+
+    sleepForMs(1000);
+    int timeLeft = 120;
+
+    while (timeLeft > 0 && !shutdownHandler->isShutdown()) {
+        // have it be 1:59, 1:58, etc
+        seconds = std::to_string(timeLeft % 60);
+        if (seconds.length() == 1) {
+            seconds = "0" + seconds;
+        }
+
+        minutes = std::to_string(timeLeft / 60);
+
+        message = "System disabled for " + minutes + ":" + seconds;
+        displayManager->displayMessage(message, 0, false);
+        sleepForMs(1000);
+        timeLeft--;
+    }
+
+    shutdownHandler->enableSystem();
+    displayManager->displayMessage("System enabled", DISPLAY_TIME, false);
 }
 
 void handlePasswordChange(DisplayManager* displayManager, Keypad* keypad, Password* password, Notifier* notifier,

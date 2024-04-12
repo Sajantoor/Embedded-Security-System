@@ -23,12 +23,16 @@ class ShutdownHandler {
     Webcam* webcam;
     Heartbeat* heartbeat;
     bool isRunning = true;
+    bool isDisabled = false;
 
   public:
     ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
                     Surveillance* surveillance, Webcam* webcam, Heartbeat* heartbeat);
     void shutdown(void);
     bool isShutdown(void);
+    bool isSystemDisabled(void);
+    void disableSystem(void);
+    void enableSystem(void);
 };
 
 #endif

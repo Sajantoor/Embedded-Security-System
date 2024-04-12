@@ -59,7 +59,7 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
 }
 
 void MessageHandler::handleShutdown(void) {
-    displayManager->displayMessage("Shutting down...", DISPLAY_TIME, false);
+    displayManager->displayMessage("Shutting down...", 0, false);
     isRunning = false;
     shutdownHandler->shutdown();
 }
@@ -81,6 +81,12 @@ void MessageHandler::handleUDPMessages(void) {
         while (isRunning) {
             UdpMessage* message = socket->receive();
             std::string messageString = message->getMessage();
+
+            // Ignore all messages while disabled
+            if (shutdownHandler->isSystemDisabled()) {
+                delete message;
+                continue;
+            }
 
             std::vector<std::string> tokens = splitString(messageString);
             std::string command = tokens[0];

@@ -5,12 +5,12 @@ Surveillance::Surveillance(MotionSensor* motionSensor, Notifier* notifer) {
     this->motionSensor = motionSensor;
     this->notifier = notifer;
     isRunning = true;
-    this->thread = new std::thread(&Surveillance::run, this);
+    this->thread = std::thread(&Surveillance::run, this);
 }
 
 void Surveillance::stop(void) {
     isRunning = false;
-    this->thread->join();
+    thread.join();
 }
 
 void Surveillance::run(void) {
