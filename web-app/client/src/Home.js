@@ -107,7 +107,8 @@ export default function Home() {
     return () => {
       socket.disconnect();
     };
-  }, [heartbeatTimeout]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function systemDown() {
     setSystemStatus('Offline');
