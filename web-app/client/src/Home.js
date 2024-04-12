@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import './index.css';
 import {
-  Heading,
   NumberInput,
   NumberInputField,
   NumberIncrementStepper,
@@ -43,7 +42,7 @@ export default function Home() {
   const [events, setEvents] = useState([]);
   const [errors, setErrors] = useState([]);
   const canvasRef = useRef(null);
-  let timeout;
+  const [heartbeatTimeout, setHeartbeatTimeout] = useState(null);
 
   useEffect(() => {
     const url = 'http://localhost:4000';
@@ -79,7 +78,7 @@ export default function Home() {
 
     socket.on('heartbeat', (heartbeat) => {
       // message has the format [heartbeat] [timestamp] [uptime (in seconds)] [currentMessage]
-      clearTimeout(timeout);
+      clearTimeout(heartbeatTimeout);
 
 
       const tokens = heartbeat.split(' ');
@@ -95,9 +94,9 @@ export default function Home() {
       setSystemStatus('Online');
       setErrors([]);
 
-      timeout = setTimeout(() => {
+      setHeartbeatTimeout(setTimeout(() => {
         systemDown();
-      }, 3000);
+      }, 3000));
     });
 
     socket.on("canvas", (data) => {
@@ -108,7 +107,7 @@ export default function Home() {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [heartbeatTimeout]);
 
   function systemDown() {
     setSystemStatus('Offline');
