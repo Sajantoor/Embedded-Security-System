@@ -8,7 +8,7 @@ DisplayManager::DisplayManager(LCD* lcd, Keypad* keypad, Relay* relay) : lcd(lcd
     displayManagerThread = std::thread(&DisplayManager::run, this);
 }
 
-void DisplayManager::displayMessage(std::string message, long long timeoutInMs, bool requireKeypadInput) {
+void DisplayManager::displayMessage(std::string message, unsigned int timeoutInMs, bool requireKeypadInput) {
     if (message == currentMessage) {
         return;
     }
@@ -59,8 +59,9 @@ std::string DisplayManager::getCurrentMessage() {
     return currentMessage;
 }
 
-void DisplayManager::clearDisplayAfterTimeout(long long timeoutInMs) {
+void DisplayManager::clearDisplayAfterTimeout(unsigned int timeoutInMs) {
     currentTimeout.store(timeoutInMs);
+    messageToClear = currentMessage;
 }
 
 void DisplayManager::run() {
@@ -71,10 +72,11 @@ void DisplayManager::run() {
                 currentTimeout -= 1000;
             }
 
-            lcd->clearDisplay();
-
-            if (isRunning) {
+            if (isRunning && currentMessage == messageToClear) {
+                lcd->clearDisplay();
                 showDefaultMessage();
+                currentMessage = "";
+                messageToClear = "";
             }
         }
     }

@@ -28,10 +28,11 @@ class DisplayManager {
     bool wasRequiringInput = false;
     std::thread displayManagerThread;
     std::atomic<long long> currentTimeout = 0;
+    std::string messageToClear = "";
     // Display default message based on the state of the relay
     void showDefaultMessage(void);
 
-    void clearDisplayAfterTimeout(long long timeoutInMs);
+    void clearDisplayAfterTimeout(unsigned int timeoutInMs);
     void run(void);
 
   public:
@@ -40,7 +41,7 @@ class DisplayManager {
     // Display a message on the LCD screen
     // If timeout is set, the message will be cleared after the timeout
     // If requireKeypadInput is set to true, keypad input will replace the message
-    void displayMessage(std::string message, long long timeoutInMs = 0, bool requireKeypadInput = false);
+    void displayMessage(std::string message, unsigned int timeoutInMs = 0, bool requireKeypadInput = false);
     // Sets isRunning to false
     void stop();
 
