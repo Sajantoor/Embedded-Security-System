@@ -23,6 +23,9 @@ typedef enum {
     HEARTBEAT
 } NotificationType;
 
+/**
+ * Class used to send notifications to the web server.
+*/
 class Notifier {
   public:
     Notifier(Socket* socket);

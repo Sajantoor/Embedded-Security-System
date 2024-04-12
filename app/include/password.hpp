@@ -7,6 +7,9 @@ Handle saving, changing, and comparing passwords.
 
 #include <string>
 
+/**
+ * Class to handle saving, changing, and comparing passwords.
+*/
 class Password {
   private:
     bool isPasswordSet = false;

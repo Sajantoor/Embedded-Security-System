@@ -4,11 +4,20 @@
 #include "displayManager.hpp"
 #include "notifier.hpp"
 
+/**
+ * Class to send "heartbeat" or "ping" messages to the server, indicating the 
+ * device is still running, it's uptime and the current message on the display.
+*/
 class Heartbeat {
   public:
+    /**
+     * Create the heartbeat class and start the heartbeat thread
+    */
     Heartbeat(Notifier* notifier, DisplayManager* displayManager);
+    /**
+     * Stop the heartbeat thread and join it
+    */
     void stop(void);
-    void run(void);
 
   private:
     Notifier* notifier;
@@ -16,6 +25,7 @@ class Heartbeat {
     std::thread heartbeatThread;
     long long uptime;  // in seconds
     bool isRunning;
+    void run(void);
 };
 
 #endif

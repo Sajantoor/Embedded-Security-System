@@ -10,6 +10,9 @@
 
 enum LcdGpioPins { D4 = 66, D5 = 69, D6 = 115, D7 = 48, RS = 68, E = 67 };
 
+/**
+ * Class to handle the LCD display
+*/
 class LCD {
   private:
     GPIO gpio;

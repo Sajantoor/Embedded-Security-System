@@ -5,6 +5,9 @@
 #include <string>
 #include <thread>
 
+/**
+ * Class to handle the keypad input
+*/
 class Keypad {
   private:
     std::string buttonsPressed = "";

@@ -13,6 +13,9 @@ Provides the shutdown state and shuts down the system.
 #include "heartbeat.hpp"
 #include "surveillance.hpp"
 
+/**
+ * Class to handle the shutdown state and shut down the system
+*/
 class ShutdownHandler {
   private:
     LCD* lcd;
@@ -28,8 +31,17 @@ class ShutdownHandler {
   public:
     ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
                     Surveillance* surveillance, Webcam* webcam, Heartbeat* heartbeat);
+    /**
+     * Shut's down the system gracefully
+    */
     void shutdown(void);
+    /**
+     * Returns true if the system is in the shutdown state
+    */
     bool isShutdown(void);
+    /**
+     * Returns true if the system is disabled, ie, not taking an input
+    */
     bool isSystemDisabled(void);
     void disableSystem(void);
     void enableSystem(void);

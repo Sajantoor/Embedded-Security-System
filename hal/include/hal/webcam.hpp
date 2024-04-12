@@ -1,7 +1,3 @@
-/***
- * Handles the stream of the webcam and pushes the data to a socket
- * Use ffmpeg to stream the data
-*/
 
 #ifndef _WEBCAM_HPP_
 #define _WEBCAM_HPP_
@@ -9,6 +5,11 @@
 #include "../../app/include/socket.hpp"
 
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
+
+/***
+ * Handles the stream of the webcam and pushes the data to a socket
+ * Use ffmpeg to stream the data
+*/
 class Webcam {
   private:
     enum io_method {
