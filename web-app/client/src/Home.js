@@ -42,7 +42,7 @@ export default function Home() {
   const [events, setEvents] = useState([]);
   const [errors, setErrors] = useState([]);
   const canvasRef = useRef(null);
-  const [heartbeatTimeout, setHeartbeatTimeout] = useState(null);
+  let timeout = null;
 
   useEffect(() => {
     const url = 'http://localhost:4000';
@@ -78,7 +78,7 @@ export default function Home() {
 
     socket.on('heartbeat', (heartbeat) => {
       // message has the format [heartbeat] [timestamp] [uptime (in seconds)] [currentMessage]
-      clearTimeout(heartbeatTimeout);
+      clearTimeout(timeout);
 
 
       const tokens = heartbeat.split(' ');
@@ -94,9 +94,9 @@ export default function Home() {
       setSystemStatus('Online');
       setErrors([]);
 
-      setHeartbeatTimeout(setTimeout(() => {
+      timeout = setTimeout(() => {
         systemDown();
-      }, 3000));
+      }, 3000);
     });
 
     socket.on("canvas", (data) => {
@@ -107,7 +107,7 @@ export default function Home() {
     return () => {
       socket.disconnect();
     };
-  }, [heartbeatTimeout]);
+  }, []);
 
   function systemDown() {
     setSystemStatus('Offline');
