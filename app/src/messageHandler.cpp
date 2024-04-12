@@ -82,6 +82,12 @@ void MessageHandler::handleUDPMessages(void) {
             UdpMessage* message = socket->receive();
             std::string messageString = message->getMessage();
 
+            // Ignore all messages while disabled
+            if (shutdownHandler->isSystemDisabled()) {
+                delete message;
+                continue;
+            }
+
             std::vector<std::string> tokens = splitString(messageString);
             std::string command = tokens[0];
             std::vector<std::string> arguments = {};

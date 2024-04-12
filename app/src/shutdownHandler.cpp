@@ -25,3 +25,15 @@ void ShutdownHandler::shutdown(void) {
 bool ShutdownHandler::isShutdown(void) {
     return !isRunning;
 }
+
+bool ShutdownHandler::isSystemDisabled(void) {
+    return isDisabled;
+}
+
+void ShutdownHandler::disableSystem(void) {
+    isDisabled = true;
+}
+
+void ShutdownHandler::enableSystem(void) {
+    isDisabled = false;
+}

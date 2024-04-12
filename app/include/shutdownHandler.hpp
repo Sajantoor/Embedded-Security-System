@@ -21,12 +21,16 @@ class ShutdownHandler {
     Surveillance* surveillance;
     Heartbeat* heartbeat;
     bool isRunning = true;
+    bool isDisabled = false;
 
   public:
     ShutdownHandler(LCD* lcd, Keypad* keypad, DisplayManager* displayManager, Buzzer* buzzer,
                     Surveillance* surveillance, Heartbeat* heartbeat);
     void shutdown(void);
     bool isShutdown(void);
+    bool isSystemDisabled(void);
+    void disableSystem(void);
+    void enableSystem(void);
 };
 
 #endif

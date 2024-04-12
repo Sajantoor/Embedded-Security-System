@@ -102,7 +102,10 @@ void disableSystemMessage(DisplayManager* displayManager, ShutdownHandler* shutd
     std::string message = "";
     std::string seconds = "";
     std::string minutes = "";
+
     displayManager->displayMessage("System disabled for 2 minutes", 0, false);
+    shutdownHandler->disableSystem();
+
     sleepForMs(1000);
     int timeLeft = 120;
 
@@ -121,6 +124,7 @@ void disableSystemMessage(DisplayManager* displayManager, ShutdownHandler* shutd
         timeLeft--;
     }
 
+    shutdownHandler->enableSystem();
     displayManager->displayMessage("System enabled", DISPLAY_TIME, false);
 }
 
