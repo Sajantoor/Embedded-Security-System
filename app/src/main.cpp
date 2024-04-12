@@ -31,7 +31,7 @@ int main(void) {
     Password password;
     Socket socket;
     Buzzer buzzer;
-    Webcam webcam;
+    Webcam webcam(&socket);
     Notifier notifier(&socket);
     MotionSensor motionSensor;
     Surveillance surveillance(&motionSensor, &notifier);

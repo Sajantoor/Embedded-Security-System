@@ -32,8 +32,8 @@ class Webcam {
     Socket* streamSocket;
     std::thread streamThread;
     bool isRunning = false;
-    void openConnectionT(void);
-    void closeConnectionT(void);
+
+    //Helper functions for streaming data
     void sendResponseT(const void* str, int size);
     void process_image(const void* p, int size);
     int read_frame(void);
@@ -51,6 +51,7 @@ class Webcam {
     void close_device(void);
 
   public:
+    Webcam(Socket* socket);
     void startStream(void);
     void stopStream(void);
 };
