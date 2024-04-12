@@ -75,7 +75,6 @@ void DisplayManager::run() {
             if (isRunning && currentMessage == messageToClear) {
                 lcd->clearDisplay();
                 showDefaultMessage();
-                currentMessage = "";
                 messageToClear = "";
             }
         }
