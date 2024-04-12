@@ -1,7 +1,3 @@
-/*
-Provides the shutdown state and shuts down the system.
-*/
-
 #ifndef _SHUTDOWN_HANDLER_HPP_
 #define _SHUTDOWN_HANDLER_HPP_
 
@@ -14,7 +10,7 @@ Provides the shutdown state and shuts down the system.
 #include "surveillance.hpp"
 
 /**
- * Class to handle the shutdown state and shut down the system
+ * Class to handle the shutdown state and disabled state and shut down the system
 */
 class ShutdownHandler {
   private:

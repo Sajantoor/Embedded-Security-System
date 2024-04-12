@@ -1,7 +1,3 @@
-/*
-Handle saving, changing, and comparing passwords.
-*/
-
 #ifndef _PASSWORD_HPP_
 #define _PASSWORD_HPP_
 
