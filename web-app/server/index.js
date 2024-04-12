@@ -35,21 +35,52 @@ let ffmpegProcess = startFFMpegProcess();
 let frame = null;
 let currentClientSocket = null;
 
+// https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+};
+
 // Send message to Discord through Webhook
-const sendDiscordMessage = (message) => {
-  axios
-    .post(DISCORD_WEBHOOK, {
-      username: 'Security System',
-      embeds: [
-        {
-          title: message,
-          color: DISCORD_EMBED_COLOR,
-        },
-      ],
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+const sendDiscordMessage = (message, base64String = '') => {
+  const image = base64String ? b64toBlob(base64String.replace(/^data:image\/[a-z]+;base64,/, ''), 'image/jpeg') : null;
+  const data = {
+    username: 'Security System',
+    embeds: [
+      {
+        title: message,
+        color: DISCORD_EMBED_COLOR,
+        image: image
+          ? {
+              url: `attachment://image.jpeg`,
+            }
+          : null,
+      },
+    ],
+  };
+
+  // https://discord.com/developers/docs/reference#uploading-files
+  var headers = new Headers();
+  const formData = new FormData();
+  if (image) formData.append('file', image, 'image.jpeg');
+  formData.append('payload_json', JSON.stringify(data));
+  headers.append('Content-Type', 'multipart/form-data');
+  axios.post(DISCORD_WEBHOOK, formData, { headers: headers }).catch((error) => console.error(error));
 };
 
 // Send messages to discord, does not require a socket connection
@@ -69,7 +100,7 @@ udpServer.on('message', (msg) => {
   const message = parsedMessage.message;
   const timestamp = convertEpochTimeToTimestamp(parsedMessage.epochTime);
   const discordMessage = `**${timestamp}**: ${message}`;
-  sendDiscordMessage(discordMessage);
+  sendDiscordMessage(discordMessage, getCurrentFrame());
 });
 
 webSocketServer.on('connection', (socket) => {
@@ -168,7 +199,7 @@ ffmpegProcess.stdout.on("data", function (data) {
 });
 
 function getCurrentFrame() {
-  return "data:image/jpeg;base64," + frame;
+	return frame ? "data:image/jpeg;base64," + frame : "";
 }
 
 const COMMANDS = {
