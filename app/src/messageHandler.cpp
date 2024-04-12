@@ -59,7 +59,7 @@ void MessageHandler::handleSetDisplayMessage(std::vector<std::string> arguments)
 }
 
 void MessageHandler::handleShutdown(void) {
-    displayManager->displayMessage("Shutting down...", DISPLAY_TIME, false);
+    displayManager->displayMessage("Shutting down...", 0, false);
     isRunning = false;
     shutdownHandler->shutdown();
 }
