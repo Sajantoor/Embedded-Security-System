@@ -53,6 +53,7 @@ void Webcam::sendResponseT(const void* str, int size) {
 void Webcam::closeConnectionT(void) {
     std::cout << "Closing connection\n";
     streamSocket->closeSocket();
+    delete streamSocket;
 }
 
 void Webcam::errno_exit(const char* s) {
@@ -553,4 +554,5 @@ void Webcam::stopStream() {
     stop_capturing();
     uninit_device();
     close_device();
+    closeConnectionT();
 }
