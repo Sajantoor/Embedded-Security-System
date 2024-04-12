@@ -40,20 +40,11 @@
 #include "hal/webcam.hpp"
 
 // Initialize UDP connection
-void Webcam::openConnectionT(void) {
-    streamSocket = new Socket();
-}
+Webcam::Webcam(Socket* socket) : streamSocket(socket) {}
 
 // Send video frame using udp packet
 void Webcam::sendResponseT(const void* str, int size) {
     streamSocket->sendDataToWebServer(str, size);
-}
-
-// Close udp connection
-void Webcam::closeConnectionT(void) {
-    std::cout << "Closing connection\n";
-    streamSocket->closeSocket();
-    delete streamSocket;
 }
 
 void Webcam::errno_exit(const char* s) {
@@ -453,7 +444,6 @@ void Webcam::init_device(void) {
     CLEAR(fmt);
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fprintf(stderr, "Force Format %d\n", force_format);
     if (force_format) {
         if (force_format == 2) {
             fmt.fmt.pix.width = 720;
@@ -528,7 +518,6 @@ void Webcam::startStream() {
     std::cout << "Starting streaming\n";
 
     streamThread = std::thread([this] {
-        openConnectionT();
         isRunning = true;
 
         // Initialize other variables and setup
@@ -554,5 +543,4 @@ void Webcam::stopStream() {
     stop_capturing();
     uninit_device();
     close_device();
-    closeConnectionT();
 }
