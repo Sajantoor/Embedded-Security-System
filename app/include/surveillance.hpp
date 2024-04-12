@@ -26,7 +26,7 @@ class Surveillance {
     void run(void);
     MotionSensor* motionSensor;
     Notifier* notifier;
-    std::thread* thread;
+    std::thread thread;
     bool isRunning;
 };
 
