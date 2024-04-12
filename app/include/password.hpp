@@ -1,12 +1,11 @@
-/*
-Handle saving, changing, and comparing passwords.
-*/
-
 #ifndef _PASSWORD_HPP_
 #define _PASSWORD_HPP_
 
 #include <string>
 
+/**
+ * Class to handle saving, changing, and comparing passwords.
+*/
 class Password {
   private:
     bool isPasswordSet = false;

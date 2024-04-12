@@ -1,7 +1,3 @@
-/*
-Sends notifications to the web server.
-*/
-
 #ifndef __NOTIFIER_HPP_
 #define __NOTIFIER_HPP_
 
@@ -23,6 +19,9 @@ typedef enum {
     HEARTBEAT
 } NotificationType;
 
+/**
+ * Class used to send notifications to the web server.
+*/
 class Notifier {
   public:
     Notifier(Socket* socket);

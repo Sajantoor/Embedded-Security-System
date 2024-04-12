@@ -1,8 +1,4 @@
-/*
-Update display when keypad is pressed
-Set custom messages on the display like "Door is locked" or any custom message with an optional timeout.
-These messages disappear when the keypad is pressed, showing keypad input.
-*/
+
 
 #ifndef _DISPLAY_MANAGER_HPP_
 #define _DISPLAY_MANAGER_HPP_
@@ -18,6 +14,11 @@ These messages disappear when the keypad is pressed, showing keypad input.
 #define DISPLAY_TIME 2000
 #define ERROR_DISPLAY_TIME 15000
 
+/*
+Update display when keypad is pressed
+Set custom messages on the display like "Door is locked" or any custom message with an optional timeout.
+These messages disappear when the keypad is pressed, showing keypad input.
+*/
 class DisplayManager {
   private:
     LCD* lcd;

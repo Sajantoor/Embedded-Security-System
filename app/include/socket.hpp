@@ -23,23 +23,26 @@ static constexpr int PORT_SERVER = 7070;
  * Contains the message, the ip address of the sender and the port of the
  * sender.
  */
-class Udp {
+class UdpPacket {
   protected:
     std::string ip;
     unsigned int port;
 
   public:
-    Udp(std::string ip, unsigned int port) : ip(ip), port(port) {}
+    UdpPacket(std::string ip, unsigned int port) : ip(ip), port(port) {}
     std::string getIp(void) { return ip; }
     unsigned int getPort(void) { return port; }
     virtual const void* getData(void) = 0;
     virtual unsigned int getSize(void) = 0;
-    virtual ~Udp() {}  //Needed for delete
+    virtual ~UdpPacket() {}  //Needed for delete
 };
 
-class UdpMessage : public Udp {
+/**
+ * Represents a message that is sent or recieved from the UDP socket.
+*/
+class UdpMessage : public UdpPacket {
   public:
-    UdpMessage(std::string message, std::string ip, unsigned int port) : Udp(ip, port), message(message) {}
+    UdpMessage(std::string message, std::string ip, unsigned int port) : UdpPacket(ip, port), message(message) {}
 
     const void* getData(void) override { return message.c_str(); }
     std::string getMessage(void) { return message; }
@@ -50,10 +53,13 @@ class UdpMessage : public Udp {
     std::string message;
 };
 
-class UdpStream : public Udp {
+/**
+ * Represents a stream of data that is sent or recieved from the UDP socket.
+*/
+class UdpStream : public UdpPacket {
   public:
     UdpStream(const void* data, unsigned int size, std::string ip, unsigned int port)
-        : Udp(ip, port), data(data), size(size) {}
+        : UdpPacket(ip, port), data(data), size(size) {}
 
     const void* getData(void) override { return data; }
     unsigned int getSize(void) { return size; }
@@ -81,7 +87,7 @@ class Socket {
     /**
      * Sends a message
      */
-    void send(Udp* message);
+    void send(UdpPacket* message);
     /**
      * Returns true if the socket is currently recieving messages.
      */

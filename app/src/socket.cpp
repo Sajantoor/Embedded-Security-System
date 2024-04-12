@@ -57,7 +57,7 @@ UdpMessage* Socket::receive(void) {
     return new UdpMessage(message, ip, ntohs(clientAddress.sin_port));
 }
 
-void Socket::send(Udp* message) {
+void Socket::send(UdpPacket* message) {
     // Get the address of the server
     struct sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;

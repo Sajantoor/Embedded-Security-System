@@ -5,6 +5,9 @@
 #include <functional>
 #include <thread>
 
+/**
+ * Class to handle the buzzer sound
+*/
 class Buzzer {
   private:
     void updatePwm(unsigned int period, unsigned int dutyCycle);

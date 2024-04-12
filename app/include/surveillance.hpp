@@ -10,6 +10,9 @@
 // Have a timeout of 2 minutes
 #define MOTION_TIMEOUT 120
 
+/**
+ * Class to handle survillance of the system, detecting motion and sending notifications
+*/
 class Surveillance {
   public:
     /**
