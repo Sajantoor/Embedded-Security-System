@@ -31,17 +31,18 @@ int main(void) {
     Password password;
     Socket socket;
     Buzzer buzzer;
+    Webcam webcam;
     Notifier notifier(&socket);
     MotionSensor motionSensor;
     Surveillance surveillance(&motionSensor, &notifier);
     Heartbeat heartbeat(&notifier, &displayManager);
-    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer, &surveillance, &heartbeat);
+    ShutdownHandler shutdownHandler(&lcd, &keypad, &displayManager, &buzzer, &surveillance, &webcam, &heartbeat);
     MessageHandler messageHandler(&socket, &relay, &password, &displayManager, &shutdownHandler, &notifier);
 
     std::cout << "Initialization finished, starting program" << std::endl;
-    startStream();
 
     // Close the relay and start stream at the start of the program
+    webcam.startStream();
     relay.close();
     displayManager.displayMessage("Starting program...", DISPLAY_TIME, false);
 

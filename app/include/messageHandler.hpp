@@ -6,8 +6,8 @@
 #include "hal/relay.hpp"
 #include "notifier.hpp"
 #include "password.hpp"
-#include "socket.hpp"
 #include "shutdownHandler.hpp"
+#include "socket.hpp"
 
 /**
  Responsible for handling the messages received from the
@@ -20,7 +20,8 @@ class MessageHandler {
      * Starts the message handler on a new thread. This function will only shut
      * down once it receives a stop message from the UDP socket.
      */
-    MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager, ShutdownHandler* ShutdownHandler, Notifier* notifier);
+    MessageHandler(Socket* socket, Relay* relay, Password* password, DisplayManager* displayManager,
+                   ShutdownHandler* ShutdownHandler, Notifier* notifier);
     /**
      * Stops the message handler.
      */
