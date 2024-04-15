@@ -48,8 +48,6 @@ void Password::writePasswordToFile(const std::string& encryptedPassword) {
     }
 }
 
-// TODO: We can cache this value to avoid reading from file every time, we should
-// only need to read from file during initialization
 std::string Password::readPasswordFromFile() {
     std::ifstream file(filePath);
     std::string encryptedPassword = "";

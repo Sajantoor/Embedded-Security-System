@@ -61,8 +61,7 @@ bool JoyStick::isPressed(JoystickDirection dir) {
             break;
         default:
             printf("ERROR: Invalid direction.\n");
-            // TODO: Handle this gracefully.
-            exit(1);
+            return false;
     }
 
     // "Joystick pins read 0 when pressed and 1 when not pressed"
