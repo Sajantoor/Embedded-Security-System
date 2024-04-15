@@ -7,5 +7,4 @@ file(GLOB MY_SOURCES "src/*.cpp")
 
 add_library(hal STATIC ${MY_SOURCES})
 
-target_link_libraries(hal PUBLIC common)
 target_include_directories(hal PUBLIC include)
