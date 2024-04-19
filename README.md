@@ -123,17 +123,16 @@ Ensure you download the `Clang-Format` vscode extension, set it as the default f
   .
   ├── app
   │   ├── include
-  │   │   └── badmath.h
+  │   │   └── 
   │   ├── src
-  │   │   ├── badmath.c
-  │   │   └── main.c
+  │   │   └── 
   │   └── CMakeLists.txt           # Sub CMake file, just for app/
   ├── hal
   │   ├── include
   │   │   └── hal
-  │   │       └── button.h
+  │   │       └── 
   │   ├── src
-  │   │   └── button.c
+  │   │   └── 
   │   └── CMakeLists.txt           # Sub CMake file, just for hal/
   ├── CMakeLists.txt               # Main CMake file for the project
   └── README.md
